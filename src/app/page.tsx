@@ -83,7 +83,7 @@ export default function Home() {
                         <Link href="/expenses"><Plus/> Expense</Link>
                     </Button>
                     <Button asChild variant="secondary" size="sm">
-                        <Link href="/maintenance/add"><Plus/> Maintenance</Link>
+                        <Link href="/maintenance"><Plus/> Maintenance</Link>
                     </Button>
                      <Button asChild variant="secondary" size="sm">
                         <Link href="/assets/add"><Plus/> Asset</Link>
