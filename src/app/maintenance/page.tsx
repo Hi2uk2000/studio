@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Wrench, Calendar, Plus, FileText, Paperclip, MoreVertical, Edit, Trash2, Bot } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -272,5 +272,7 @@ function TaskFormDialog({ task, onSave, onClose }: {
     </DialogContent>
   );
 }
+
+    
 
     
