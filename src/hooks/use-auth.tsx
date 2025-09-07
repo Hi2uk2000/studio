@@ -18,6 +18,7 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
+  reload,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
@@ -69,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (auth.currentUser) {
         await updateProfile(auth.currentUser, { displayName: fullName });
         // Manually update the user state after profile update
+        await reload(auth.currentUser);
         setUser({ ...auth.currentUser });
       }
     } catch (error) {
