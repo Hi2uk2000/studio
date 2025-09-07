@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Loader2 } from 'lucide-react';
-import { categorizeExpense } from '@/ai/flows/categorize-expenses';
+import { categoriseExpense } from '@/ai/flows/categorize-expenses';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -37,19 +37,19 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
   async function onSubmit(data: ExpenseFormValues) {
     setIsLoading(true);
     try {
-      const { category } = await categorizeExpense({ description: data.description });
+      const { category } = await categoriseExpense({ description: data.description });
       onAddExpense({ ...data, category });
       toast({
         title: 'Expense Added',
-        description: `Categorized as "${category}".`,
+        description: `Categorised as "${category}".`,
       });
       form.reset();
     } catch (error) {
-      console.error('Failed to categorize expense:', error);
+      console.error('Failed to categorise expense:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Could not categorize expense. Adding as "Other".',
+        description: 'Could not categorise expense. Adding as "Other".',
       });
       onAddExpense({ ...data, category: 'Other' });
       form.reset();
@@ -110,7 +110,7 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
           ) : (
             <Sparkles className="mr-2 h-4 w-4" />
           )}
-          Add & Categorize
+          Add & Categorise
         </Button>
       </form>
     </Form>

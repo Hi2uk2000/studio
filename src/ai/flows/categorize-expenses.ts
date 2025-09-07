@@ -1,28 +1,28 @@
-// src/ai/flows/categorize-expenses.ts
+// src/ai/flows/categorise-expenses.ts
 'use server';
 
 /**
- * @fileOverview AI-powered expense categorization flow.
+ * @fileOverview AI-powered expense categorisation flow.
  *
- * This file defines a Genkit flow that uses an LLM to automatically categorize
+ * This file defines a Genkit flow that uses an LLM to automatically categorise
  * expenses based on their description.
  *
- * @exports categorizeExpense - The main function to categorize an expense.
- * @exports CategorizeExpenseInput - The input type for the categorizeExpense function.
- * @exports CategorizeExpenseOutput - The output type for the categorizeExpense function.
+ * @exports categoriseExpense - The main function to categorise an expense.
+ * @exports CategoriseExpenseInput - The input type for the categoriseExpense function.
+ * @exports CategoriseExpenseOutput - The output type for the categoriseExpense function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const CategorizeExpenseInputSchema = z.object({
+const CategoriseExpenseInputSchema = z.object({
   description: z
     .string()
-    .describe('The description of the expense to categorize.'),
+    .describe('The description of the expense to categorise.'),
 });
-export type CategorizeExpenseInput = z.infer<typeof CategorizeExpenseInputSchema>;
+export type CategoriseExpenseInput = z.infer<typeof CategoriseExpenseInputSchema>;
 
-const CategorizeExpenseOutputSchema = z.object({
+const CategoriseExpenseOutputSchema = z.object({
   category: z
     .string()
     .describe(
@@ -34,17 +34,17 @@ const CategorizeExpenseOutputSchema = z.object({
       'The confidence level (0 to 1) of the category prediction, where 1 is the highest confidence.'
     ),
 });
-export type CategorizeExpenseOutput = z.infer<typeof CategorizeExpenseOutputSchema>;
+export type CategoriseExpenseOutput = z.infer<typeof CategoriseExpenseOutputSchema>;
 
-export async function categorizeExpense(input: CategorizeExpenseInput): Promise<CategorizeExpenseOutput> {
-  return categorizeExpenseFlow(input);
+export async function categoriseExpense(input: CategoriseExpenseInput): Promise<CategoriseExpenseOutput> {
+  return categoriseExpenseFlow(input);
 }
 
-const categorizeExpensePrompt = ai.definePrompt({
-  name: 'categorizeExpensePrompt',
-  input: {schema: CategorizeExpenseInputSchema},
-  output: {schema: CategorizeExpenseOutputSchema},
-  prompt: `You are an AI assistant that categorizes expenses based on their description.
+const categoriseExpensePrompt = ai.definePrompt({
+  name: 'categoriseExpensePrompt',
+  input: {schema: CategoriseExpenseInputSchema},
+  output: {schema: CategoriseExpenseOutputSchema},
+  prompt: `You are an AI assistant that categorises expenses based on their description.
 
   Given the following expense description, determine the most appropriate category and a confidence level for your prediction.
 
@@ -56,14 +56,14 @@ const categorizeExpensePrompt = ai.definePrompt({
 `,
 });
 
-const categorizeExpenseFlow = ai.defineFlow(
+const categoriseExpenseFlow = ai.defineFlow(
   {
-    name: 'categorizeExpenseFlow',
-    inputSchema: CategorizeExpenseInputSchema,
-    outputSchema: CategorizeExpenseOutputSchema,
+    name: 'categoriseExpenseFlow',
+    inputSchema: CategoriseExpenseInputSchema,
+    outputSchema: CategoriseExpenseOutputSchema,
   },
   async input => {
-    const {output} = await categorizeExpensePrompt(input);
+    const {output} = await categoriseExpensePrompt(input);
     return output!;
   }
 );

@@ -40,7 +40,7 @@ export default function ExpensesPage() {
           <Card>
             <CardHeader>
               <CardTitle>Add New Expense</CardTitle>
-              <CardDescription>Enter details and let AI categorize it for you.</CardDescription>
+              <CardDescription>Enter details and let AI categorise it for you.</CardDescription>
             </CardHeader>
             <CardContent>
               <ExpenseForm onAddExpense={addExpense} />
