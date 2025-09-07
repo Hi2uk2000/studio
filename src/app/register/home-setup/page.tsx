@@ -1,4 +1,3 @@
-
 // src/app/register/home-setup/page.tsx
 'use client';
 
@@ -46,6 +45,7 @@ const formSchema = z.object({
   purchaseDate: z.date({
     required_error: 'A purchase date is required.',
   }),
+  regularMonthlyPayment: z.coerce.number().positive('Please enter a valid monthly payment.'),
 });
 
 type HomeSetupFormValues = z.infer<typeof formSchema>;
@@ -153,8 +153,9 @@ export default function HomeSetupPage() {
                 </div>
             </div>
 
-            <div className="space-y-2">
-                <Label>Purchase Date *</Label>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                    <Label>Purchase Date *</Label>
                     <Controller
                     control={form.control}
                     name="purchaseDate"
@@ -192,6 +193,24 @@ export default function HomeSetupPage() {
                     {form.formState.errors.purchaseDate && (
                         <p className="text-sm text-destructive">{form.formState.errors.purchaseDate.message}</p>
                     )}
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="regularMonthlyPayment">Regular Monthly Payment (£) *</Label>
+                    <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                    <Input
+                        {...form.register('regularMonthlyPayment')}
+                        id="regularMonthlyPayment"
+                        type="number"
+                        step="0.01"
+                        placeholder="1200"
+                        className="pl-8"
+                    />
+                    </div>
+                    {form.formState.errors.regularMonthlyPayment && (
+                    <p className="text-sm text-destructive">{form.formState.errors.regularMonthlyPayment.message}</p>
+                    )}
+                </div>
             </div>
           </CardContent>
           <CardFooter>

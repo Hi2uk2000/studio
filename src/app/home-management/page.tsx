@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo } from "react";
-import { Bed, Bath, Ruler, Zap, Hammer, FileText, Banknote, Building, Calendar, BarChart, Bell, Home, CheckCircle, Clock, Edit, Calculator, Info, Percent } from "lucide-react"
+import { Bed, Bath, Ruler, Zap, Hammer, FileText, Banknote, Building, Calendar, BarChart, Bell, Home, CheckCircle, Clock, Edit, Calculator, Info, Percent, AlertTriangle } from "lucide-react"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -33,7 +33,7 @@ const initialPropertyDetails = {
 const initialQuickStats = {
   mortgageBalance: 270000,
   interestRate: 3.5, // percentage
-  renewalDate: new Date('2027-06-01'),
+  renewalDate: new Date('2024-06-01'), // Set to a past date to show the renewal reminder
   insurancePremium: 450,
   lastMonthsBills: 430,
   regularMonthlyPayment: 1340,
@@ -51,6 +51,8 @@ export default function HomeManagementPage() {
   const [propertyDetails, setPropertyDetails] = useState(initialPropertyDetails);
   const [quickStats, setQuickStats] = useState(initialQuickStats);
   const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false);
+
+  const isRenewalDue = new Date() > quickStats.renewalDate;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -84,6 +86,22 @@ export default function HomeManagementPage() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-6">
+           {isRenewalDue && (
+              <Card className="mb-6 bg-amber-50 border border-amber-200">
+                  <CardHeader className="flex flex-row items-center gap-4">
+                      <AlertTriangle className="h-8 w-8 text-amber-500" />
+                      <div>
+                        <CardTitle className="text-amber-900">Mortgage Renewal Due</CardTitle>
+                        <CardDescription className="text-amber-800">
+                          Your fixed term may have ended. Update your mortgage details to ensure your calculations are accurate.
+                        </CardDescription>
+                      </div>
+                  </CardHeader>
+                   <CardContent>
+                        <Button onClick={() => setIsStatsDialogOpen(true)}>Update Mortgage Details</Button>
+                   </CardContent>
+              </Card>
+           )}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
             <Card className="lg:col-span-2">
               <CardHeader className="flex flex-row items-center justify-between">
