@@ -2,14 +2,20 @@
 'use client';
 
 import { useState } from "react";
-import { Bed, Bath, Ruler, Zap, Hammer, FileText, Banknote, Building, Calendar, BarChart, Bell, Home, CheckCircle, Clock, Edit } from "lucide-react"
+import { Bed, Bath, Ruler, Zap, Hammer, FileText, Banknote, Building, Calendar, BarChart, Bell, Home, CheckCircle, Clock, Edit, Calculator, Info } from "lucide-react"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { enGB } from "date-fns/locale";
 
 const initialPropertyDetails = {
   address: "123 Oak Avenue, Manchester, M1 2AB",
@@ -18,15 +24,18 @@ const initialPropertyDetails = {
   size: "1,200 sq ft",
   epcRating: "B",
   councilTaxBand: "D",
-  propertyType: 'detached'
+  propertyType: 'detached',
+  purchaseDate: new Date('2020-06-15'),
+  initialMortgage: 300000,
+  term: 25, // years
 };
 
-const quickStats = {
-  mortgageBalance: "£270,000",
-  interestRate: "3.5% (Fixed)",
-  renewalDate: "1 Jun 2027",
-  insurancePremium: "£450/yr",
-  lastMonthsBills: "£430",
+const initialQuickStats = {
+  mortgageBalance: 270000,
+  interestRate: 3.5, // percentage
+  renewalDate: new Date('2027-06-01'),
+  insurancePremium: 450,
+  lastMonthsBills: 430,
 };
 
 const recentActivity = [
@@ -38,6 +47,8 @@ const recentActivity = [
 
 export default function HomeManagementPage() {
   const [propertyDetails, setPropertyDetails] = useState(initialPropertyDetails);
+  const [quickStats, setQuickStats] = useState(initialQuickStats);
+  const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -48,7 +59,7 @@ export default function HomeManagementPage() {
         <p className="text-muted-foreground">Your central hub for home management.</p>
       </div>
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
           <TabsTrigger value="overview">
             <Home className="mr-2 h-4 w-4" />
             Overview
@@ -110,37 +121,72 @@ export default function HomeManagementPage() {
               </CardContent>
             </Card>
             <Card className="lg:col-span-3">
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Quick Stats</CardTitle>
+                 <Dialog open={isStatsDialogOpen} onOpenChange={setIsStatsDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                            <Edit className="mr-2 h-4 w-4"/>
+                            Edit
+                        </Button>
+                    </DialogTrigger>
+                    <QuickStatsDialog
+                        stats={quickStats}
+                        onSave={(newStats) => {
+                            setQuickStats(newStats);
+                            setIsStatsDialogOpen(false);
+                        }}
+                        onClose={() => setIsStatsDialogOpen(false)}
+                    />
+                </Dialog>
               </CardHeader>
               <CardContent className="space-y-4">
                  <div className="flex items-center justify-between">
                     <span className="flex items-center text-muted-foreground"><BarChart className="mr-2 h-5 w-5" /> Mortgage Balance</span>
-                    <span className="font-medium">{quickStats.mortgageBalance}</span>
+                    <span className="font-medium">£{quickStats.mortgageBalance.toLocaleString()}</span>
                  </div>
                   <Separator />
                  <div className="flex items-center justify-between">
                     <span className="flex items-center text-muted-foreground"><Bell className="mr-2 h-5 w-5" /> Interest Rate</span>
-                    <span className="font-medium">{quickStats.interestRate}</span>
+                    <span className="font-medium">{quickStats.interestRate}% (Fixed)</span>
                  </div>
                   <Separator />
                  <div className="flex items-center justify-between">
                     <span className="flex items-center text-muted-foreground"><Calendar className="mr-2 h-5 w-5" /> Renewal Date</span>
-                    <span className="font-medium">{quickStats.renewalDate}</span>
+                    <span className="font-medium">{format(quickStats.renewalDate, 'd MMM yyyy', { locale: enGB })}</span>
                  </div>
                   <Separator />
                  <div className="flex items-center justify-between">
                     <span className="flex items-center text-muted-foreground"><FileText className="mr-2 h-5 w-5" /> Insurance Premium</span>
-                    <span className="font-medium">{quickStats.insurancePremium}</span>
+                    <span className="font-medium">£{quickStats.insurancePremium.toLocaleString()}/yr</span>
                  </div>
                   <Separator />
                  <div className="flex items-center justify-between">
                     <span className="flex items-center text-muted-foreground"><Banknote className="mr-2 h-5 w-5" /> Last Month's Bills</span>
-                    <span className="font-medium">{quickStats.lastMonthsBills}</span>
+                    <span className="font-medium">£{quickStats.lastMonthsBills.toLocaleString()}</span>
                  </div>
               </CardContent>
             </Card>
-             <Card className="md:col-span-2 lg:col-span-5">
+
+            <Card className="lg:col-span-2">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Calculator className="h-5 w-5 text-primary"/>
+                        Mortgage Overpayment Calculator
+                    </CardTitle>
+                    <CardDescription>See how overpayments could affect your mortgage.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <OverpaymentCalculator 
+                        mortgageBalance={quickStats.mortgageBalance}
+                        interestRate={quickStats.interestRate}
+                        purchaseDate={propertyDetails.purchaseDate}
+                        originalTerm={propertyDetails.term}
+                    />
+                </CardContent>
+            </Card>
+
+             <Card className="lg:col-span-3">
                 <CardHeader>
                     <CardTitle>Recent Activity</CardTitle>
                     <CardDescription>A log of recent events related to your property.</CardDescription>
@@ -188,4 +234,141 @@ export default function HomeManagementPage() {
       </Tabs>
     </div>
   );
+}
+
+function QuickStatsDialog({ stats, onSave, onClose }: {
+  stats: typeof initialQuickStats;
+  onSave: (data: typeof initialQuickStats) => void;
+  onClose: () => void;
+}) {
+    const [currentStats, setCurrentStats] = useState(stats);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSave(currentStats);
+    };
+
+    const handleDateChange = (date: Date | undefined) => {
+        if (date) {
+            setCurrentStats(prev => ({ ...prev, renewalDate: date }));
+        }
+    };
+
+    return (
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Edit Quick Stats</DialogTitle>
+                <DialogDescription>
+                    Update your financial statistics here.
+                </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="mortgageBalance">Mortgage Balance (£)</Label>
+                    <Input id="mortgageBalance" type="number" value={currentStats.mortgageBalance} onChange={e => setCurrentStats(prev => ({ ...prev, mortgageBalance: Number(e.target.value) }))} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="interestRate">Interest Rate (%)</Label>
+                    <Input id="interestRate" type="number" step="0.01" value={currentStats.interestRate} onChange={e => setCurrentStats(prev => ({ ...prev, interestRate: Number(e.target.value) }))} />
+                </div>
+                <div className="space-y-2">
+                    <Label>Renewal Date</Label>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal")}>
+                                <Calendar className="mr-2 h-4 w-4" />
+                                {currentStats.renewalDate ? format(currentStats.renewalDate, "PPP", { locale: enGB }) : <span>Pick a date</span>}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar mode="single" selected={currentStats.renewalDate} onSelect={handleDateChange} locale={enGB} />
+                        </PopoverContent>
+                    </Popover>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="insurancePremium">Insurance Premium (£/yr)</Label>
+                    <Input id="insurancePremium" type="number" value={currentStats.insurancePremium} onChange={e => setCurrentStats(prev => ({ ...prev, insurancePremium: Number(e.target.value) }))} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="lastMonthsBills">Last Month's Bills (£)</Label>
+                    <Input id="lastMonthsBills" type="number" value={currentStats.lastMonthsBills} onChange={e => setCurrentStats(prev => ({ ...prev, lastMonthsBills: Number(e.target.value) }))} />
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button type="submit">Save Changes</Button>
+                </DialogFooter>
+            </form>
+        </DialogContent>
+    );
+}
+
+function OverpaymentCalculator({ mortgageBalance, interestRate, purchaseDate, originalTerm }: {
+    mortgageBalance: number;
+    interestRate: number;
+    purchaseDate: Date;
+    originalTerm: number;
+}) {
+    const [overpayment, setOverpayment] = useState(0);
+    const [result, setResult] = useState<{ yearsSaved: number, interestSaved: number } | null>(null);
+
+    const calculate = () => {
+        const monthlyRate = interestRate / 100 / 12;
+        const monthsElapsed = (new Date().getFullYear() - purchaseDate.getFullYear()) * 12 + (new Date().getMonth() - purchaseDate.getMonth());
+        const remainingTermMonths = originalTerm * 12 - monthsElapsed;
+
+        // Standard monthly payment
+        const standardPayment = mortgageBalance * monthlyRate / (1 - Math.pow(1 + monthlyRate, -remainingTermMonths));
+        
+        if (isNaN(standardPayment) || !isFinite(standardPayment)) {
+            setResult(null);
+            return;
+        }
+
+        const totalPayment = standardPayment + overpayment;
+
+        // Time to repay with overpayment
+        const newTermMonths = -Math.log(1 - (mortgageBalance * monthlyRate) / totalPayment) / Math.log(1 + monthlyRate);
+        const yearsSaved = (remainingTermMonths - newTermMonths) / 12;
+
+        // Interest saved
+        const originalTotalInterest = (standardPayment * remainingTermMonths) - mortgageBalance;
+        const newTotalInterest = (totalPayment * newTermMonths) - mortgageBalance;
+        const interestSaved = originalTotalInterest - newTotalInterest;
+        
+        setResult({
+            yearsSaved: Math.round(yearsSaved * 10) / 10,
+            interestSaved: Math.round(interestSaved)
+        });
+    };
+    
+    return (
+        <div className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="overpayment">Monthly Overpayment (£)</Label>
+                <Input
+                    id="overpayment"
+                    type="number"
+                    value={overpayment}
+                    onChange={(e) => setOverpayment(Number(e.target.value))}
+                    placeholder="e.g., 100"
+                />
+            </div>
+            <Button onClick={calculate} className="w-full" disabled={overpayment <= 0}>Calculate</Button>
+
+            {result && (
+                <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
+                    <h4 className="font-semibold text-center">Calculation Result</h4>
+                     <div className="flex items-center justify-between">
+                        <span className="flex items-center text-muted-foreground text-sm"><Calendar className="mr-2 h-4 w-4" /> Years Saved</span>
+                        <span className="font-medium">{result.yearsSaved.toFixed(1)} years</span>
+                     </div>
+                      <Separator />
+                     <div className="flex items-center justify-between">
+                        <span className="flex items-center text-muted-foreground text-sm"><Banknote className="mr-2 h-4 w-4" /> Interest Saved</span>
+                        <span className="font-medium text-green-500">£{result.interestSaved.toLocaleString()}</span>
+                     </div>
+                </div>
+            )}
+        </div>
+    );
 }
