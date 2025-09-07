@@ -156,7 +156,7 @@ export default function RegistrationPage() {
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{' '}
               <Link href="/login" className="font-semibold text-primary hover:underline">
-                Log in here
+                Log in
               </Link>
             </p>
           </form>
@@ -165,3 +165,5 @@ export default function RegistrationPage() {
     </div>
   );
 }
+
+    

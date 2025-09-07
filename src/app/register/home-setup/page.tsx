@@ -32,6 +32,7 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { Calendar as CalendarIcon, Home } from 'lucide-react';
 import { format } from 'date-fns';
+import { enGB } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -149,7 +150,7 @@ export default function HomeSetupPage() {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                            {field.value ? format(field.value, "PPP", { locale: enGB }) : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
@@ -161,6 +162,7 @@ export default function HomeSetupPage() {
                               date > new Date() || date < new Date("1900-01-01")
                             }
                             initialFocus
+                            locale={enGB}
                           />
                         </PopoverContent>
                       </Popover>
@@ -199,3 +201,5 @@ export default function HomeSetupPage() {
     </div>
   );
 }
+
+    

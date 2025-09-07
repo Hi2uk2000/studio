@@ -156,7 +156,7 @@ export default function LoginPage() {
               <p className="text-center text-sm text-muted-foreground">
                 Don't have an account?{' '}
                 <Link href="/register" className="font-semibold text-primary hover:underline">
-                  Sign up here
+                  Sign up
                 </Link>
               </p>
             </form>
@@ -166,3 +166,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    
