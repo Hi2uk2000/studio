@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, CreditCard, Wrench, FileText, Sparkles, Menu, LogOut } from 'lucide-react';
+import { Home, LayoutDashboard, CreditCard, Wrench, FileText, Sparkles, Menu, LogOut, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/home-management', label: 'Home Management', icon: Home },
   { href: '/expenses', label: 'Expenses', icon: CreditCard },
   { href: '/maintenance', label: 'Maintenance', icon: Wrench },
   { href: '/documents', label: 'Documents', icon: FileText },
