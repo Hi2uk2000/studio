@@ -1,4 +1,3 @@
-
 // src/app/home-management/page.tsx
 'use client';
 
@@ -37,6 +36,8 @@ const initialQuickStats = {
   renewalDate: new Date('2027-06-01'),
   insurancePremium: 450,
   lastMonthsBills: 430,
+  regularMonthlyPayment: 1340,
+  paymentDayOfMonth: 1,
 };
 
 const recentActivity = [
@@ -183,6 +184,7 @@ export default function HomeManagementPage() {
                         interestRate={quickStats.interestRate}
                         purchaseDate={propertyDetails.purchaseDate}
                         originalTerm={propertyDetails.term}
+                        regularMonthlyPayment={quickStats.regularMonthlyPayment}
                     />
                 </CardContent>
             </Card>
@@ -256,7 +258,7 @@ function QuickStatsDialog({ stats, onSave, onClose }: {
     };
 
     return (
-        <DialogContent>
+        <DialogContent className="sm:max-w-[480px]">
             <DialogHeader>
                 <DialogTitle>Edit Quick Stats</DialogTitle>
                 <DialogDescription>
@@ -264,13 +266,25 @@ function QuickStatsDialog({ stats, onSave, onClose }: {
                 </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="mortgageBalance">Mortgage Balance (£)</Label>
-                    <Input id="mortgageBalance" type="number" value={currentStats.mortgageBalance} onChange={e => setCurrentStats(prev => ({ ...prev, mortgageBalance: Number(e.target.value) }))} />
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="mortgageBalance">Mortgage Balance (£)</Label>
+                        <Input id="mortgageBalance" type="number" value={currentStats.mortgageBalance} onChange={e => setCurrentStats(prev => ({ ...prev, mortgageBalance: Number(e.target.value) }))} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="interestRate">Interest Rate (%)</Label>
+                        <Input id="interestRate" type="number" step="0.01" value={currentStats.interestRate} onChange={e => setCurrentStats(prev => ({ ...prev, interestRate: Number(e.target.value) }))} />
+                    </div>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="interestRate">Interest Rate (%)</Label>
-                    <Input id="interestRate" type="number" step="0.01" value={currentStats.interestRate} onChange={e => setCurrentStats(prev => ({ ...prev, interestRate: Number(e.target.value) }))} />
+                 <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="regularMonthlyPayment">Regular Monthly Payment (£)</Label>
+                        <Input id="regularMonthlyPayment" type="number" value={currentStats.regularMonthlyPayment} onChange={e => setCurrentStats(prev => ({ ...prev, regularMonthlyPayment: Number(e.target.value) }))} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="paymentDayOfMonth">Payment Day of Month</Label>
+                        <Input id="paymentDayOfMonth" type="number" min="1" max="31" value={currentStats.paymentDayOfMonth} onChange={e => setCurrentStats(prev => ({ ...prev, paymentDayOfMonth: Number(e.target.value) }))} />
+                    </div>
                 </div>
                 <div className="space-y-2">
                     <Label>Renewal Date</Label>
@@ -303,11 +317,12 @@ function QuickStatsDialog({ stats, onSave, onClose }: {
     );
 }
 
-function OverpaymentCalculator({ mortgageBalance, interestRate, purchaseDate, originalTerm }: {
+function OverpaymentCalculator({ mortgageBalance, interestRate, purchaseDate, originalTerm, regularMonthlyPayment }: {
     mortgageBalance: number;
     interestRate: number;
     purchaseDate: Date;
     originalTerm: number;
+    regularMonthlyPayment: number;
 }) {
     const [monthlyOverpayment, setMonthlyOverpayment] = useState(0);
     const [lumpSumOverpayment, setLumpSumOverpayment] = useState(0);
@@ -318,32 +333,35 @@ function OverpaymentCalculator({ mortgageBalance, interestRate, purchaseDate, or
         overpaymentPercentage: number
     } | null>(null);
 
-    const { standardMonthlyPayment, remainingTermMonths } = useMemo(() => {
-        const monthlyRate = interestRate / 100 / 12;
+    const { remainingTermMonths } = useMemo(() => {
         const monthsElapsed = (new Date().getFullYear() - purchaseDate.getFullYear()) * 12 + (new Date().getMonth() - purchaseDate.getMonth());
         const remainingTerm = originalTerm * 12 - monthsElapsed;
         
-        if (remainingTerm <= 0 || mortgageBalance <= 0) return { standardMonthlyPayment: 0, remainingTermMonths: 0 };
+        if (remainingTerm <= 0 || mortgageBalance <= 0) return { remainingTermMonths: 0 };
         
-        const payment = mortgageBalance * monthlyRate / (1 - Math.pow(1 + monthlyRate, -remainingTerm));
         return {
-            standardMonthlyPayment: isNaN(payment) || !isFinite(payment) ? 0 : payment,
             remainingTermMonths: remainingTerm
         };
-    }, [mortgageBalance, interestRate, purchaseDate, originalTerm]);
+    }, [mortgageBalance, purchaseDate, originalTerm]);
 
     const calculate = () => {
-        if (standardMonthlyPayment === 0) return;
+        if (regularMonthlyPayment <= 0) return;
 
         const monthlyRate = interestRate / 100 / 12;
         const balanceAfterLumpSum = mortgageBalance - lumpSumOverpayment;
-        const totalMonthlyPayment = standardMonthlyPayment + monthlyOverpayment;
+        const totalMonthlyPayment = regularMonthlyPayment + monthlyOverpayment;
 
-        const newTermMonths = -Math.log(1 - (balanceAfterLumpSum * monthlyRate) / totalMonthlyPayment) / Math.log(1 + monthlyRate);
+        // Calculate original term details
+        const originalTotalInterest = (regularMonthlyPayment * remainingTermMonths) - mortgageBalance;
+
+        // Calculate new term with overpayments
+        let newTermMonths = 0;
+        if (balanceAfterLumpSum > 0 && totalMonthlyPayment > balanceAfterLumpSum * monthlyRate) {
+           newTermMonths = -Math.log(1 - (balanceAfterLumpSum * monthlyRate) / totalMonthlyPayment) / Math.log(1 + monthlyRate);
+        }
         
-        const totalInterestWithoutOverpayment = (standardMonthlyPayment * remainingTermMonths) - mortgageBalance;
-        const totalInterestWithOverpayment = (totalMonthlyPayment * newTermMonths) - balanceAfterLumpSum;
-        const interestSaved = totalInterestWithoutOverpayment - totalInterestWithOverpayment;
+        const newTotalInterest = (totalMonthlyPayment * newTermMonths) - balanceAfterLumpSum;
+        const interestSaved = originalTotalInterest - newTotalInterest;
         
         const newEndDate = new Date();
         newEndDate.setMonth(newEndDate.getMonth() + Math.ceil(newTermMonths));
@@ -360,14 +378,14 @@ function OverpaymentCalculator({ mortgageBalance, interestRate, purchaseDate, or
     
     return (
         <div className="space-y-4">
-             {standardMonthlyPayment > 0 && (
+             {regularMonthlyPayment > 0 && (
                 <div className="p-3 bg-muted rounded-lg text-center">
-                    <p className="text-sm text-muted-foreground">Standard Monthly Payment</p>
-                    <p className="text-lg font-bold">£{standardMonthlyPayment.toFixed(2)}</p>
+                    <p className="text-sm text-muted-foreground">Your Regular Monthly Payment</p>
+                    <p className="text-lg font-bold">£{regularMonthlyPayment.toFixed(2)}</p>
                 </div>
             )}
             <div className="space-y-2">
-                <Label htmlFor="monthly-overpayment">Monthly Overpayment (£)</Label>
+                <Label htmlFor="monthly-overpayment">Additional Monthly Overpayment (£)</Label>
                 <Input
                     id="monthly-overpayment"
                     type="number"
@@ -386,7 +404,7 @@ function OverpaymentCalculator({ mortgageBalance, interestRate, purchaseDate, or
                     placeholder="e.g., 5000"
                 />
             </div>
-            <Button onClick={calculate} className="w-full" disabled={monthlyOverpayment <= 0 && lumpSumOverpayment <= 0}>Calculate</Button>
+            <Button onClick={calculate} className="w-full" disabled={(monthlyOverpayment <= 0 && lumpSumOverpayment <= 0) || regularMonthlyPayment <= 0}>Calculate</Button>
 
             {result && (
                 <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
@@ -410,5 +428,3 @@ function OverpaymentCalculator({ mortgageBalance, interestRate, purchaseDate, or
         </div>
     );
 }
-
-    
