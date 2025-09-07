@@ -11,8 +11,17 @@ import { Plus, UploadCloud, Loader2 } from 'lucide-react';
 import RecurringBillsTable from '@/components/expenses/recurring-bills-table';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { extractExpensesFromStatement } from '@/ai/flows/extract-expenses-from-statement';
+import { extractExpensesFromStatement, ExtractExpensesOutput } from '@/ai/flows/extract-expenses-from-statement';
 import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export interface Expense {
   id: string;
@@ -51,6 +60,9 @@ export default function ExpensesPage() {
   const [statementText, setStatementText] = useState('');
   const [isExtracting, setIsExtracting] = useState(false);
   const { toast } = useToast();
+  
+  const [extractedExpenses, setExtractedExpenses] = useState<ExtractExpensesOutput['expenses']>([]);
+  const [isReviewing, setIsReviewing] = useState(false);
 
   const addExpense = (expense: Omit<Expense, 'id' | 'date'>) => {
     const newExpense: Expense = {
@@ -69,17 +81,15 @@ export default function ExpensesPage() {
     setIsExtracting(true);
     try {
         const result = await extractExpensesFromStatement({ statement: statementText });
-        const newExpenses = result.expenses.map((exp, index) => ({
-            ...exp,
-            id: `statement-${Date.now()}-${index}`,
-            date: new Date().toISOString(),
-            includeInSpend: true,
-        }));
-        setExpenses(prev => [...newExpenses, ...prev]);
-        toast({
-            title: 'Extraction Complete',
-            description: `Successfully extracted and added ${newExpenses.length} expenses.`,
-        });
+        if (result.expenses.length > 0) {
+            setExtractedExpenses(result.expenses);
+            setIsReviewing(true);
+        } else {
+            toast({
+                title: 'No Expenses Found',
+                description: 'The AI could not find any expenses to extract from the provided text.',
+            });
+        }
         setStatementText('');
     } catch (error) {
         console.error('Failed to extract expenses from statement:', error);
@@ -87,6 +97,22 @@ export default function ExpensesPage() {
     } finally {
         setIsExtracting(false);
     }
+  };
+  
+  const handleFinaliseImport = (selectedExpenses: ExtractExpensesOutput['expenses']) => {
+    const newExpenses = selectedExpenses.map((exp, index) => ({
+      ...exp,
+      id: `statement-${Date.now()}-${index}`,
+      date: new Date().toISOString(),
+      includeInSpend: true,
+    }));
+    setExpenses(prev => [...newExpenses, ...prev]);
+    toast({
+        title: 'Import Complete',
+        description: `Successfully imported ${newExpenses.length} expenses.`,
+    });
+    setIsReviewing(false);
+    setExtractedExpenses([]);
   };
 
   return (
@@ -142,6 +168,7 @@ export default function ExpensesPage() {
                             )}
                             Extract Expenses
                         </Button>
+                         <p className="text-xs text-muted-foreground">In a real app, you could upload a PDF and we'd use OCR to parse it automatically.</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -169,6 +196,97 @@ export default function ExpensesPage() {
             </Card>
         </TabsContent>
       </Tabs>
+      
+      <ReviewExpensesDialog 
+        isOpen={isReviewing} 
+        onClose={() => setIsReviewing(false)} 
+        expenses={extractedExpenses} 
+        onImport={handleFinaliseImport}
+      />
     </div>
   );
+}
+
+
+function ReviewExpensesDialog({ isOpen, onClose, expenses, onImport }: {
+    isOpen: boolean;
+    onClose: () => void;
+    expenses: ExtractExpensesOutput['expenses'];
+    onImport: (selectedExpenses: ExtractExpensesOutput['expenses']) => void;
+}) {
+    const [selectedExpenses, setSelectedExpenses] = useState<Record<number, boolean>>({});
+
+    // When the dialog opens with new expenses, default all to selected
+    useState(() => {
+        if (expenses.length > 0) {
+            const initialSelection: Record<number, boolean> = {};
+            expenses.forEach((_, index) => {
+                initialSelection[index] = true;
+            });
+            setSelectedExpenses(initialSelection);
+        }
+    });
+    
+    const handleCheckboxChange = (index: number) => {
+        setSelectedExpenses(prev => ({ ...prev, [index]: !prev[index] }));
+    };
+
+    const handleImportClick = () => {
+        const expensesToImport = expenses.filter((_, index) => selectedExpenses[index]);
+        onImport(expensesToImport);
+    };
+    
+    const allSelected = Object.values(selectedExpenses).every(Boolean);
+    const handleSelectAll = (checked: boolean) => {
+         const newSelection: Record<number, boolean> = {};
+         expenses.forEach((_, index) => {
+            newSelection[index] = checked;
+        });
+        setSelectedExpenses(newSelection);
+    }
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle>Review Extracted Expenses</DialogTitle>
+                    <DialogDescription>
+                        Select the expenses you want to import. Uncheck any items you wish to exclude.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="max-h-[60vh] overflow-y-auto pr-4">
+                    <div className="flex items-center space-x-2 py-2 border-b">
+                        <Checkbox 
+                            id="select-all"
+                            checked={allSelected} 
+                            onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                        />
+                        <label htmlFor="select-all" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Select All
+                        </label>
+                    </div>
+                    <ul className="space-y-2 py-2">
+                        {expenses.map((expense, index) => (
+                            <li key={index} className="flex items-center space-x-3 p-2 rounded-md hover:bg-muted">
+                                <Checkbox
+                                    id={`expense-${index}`}
+                                    checked={!!selectedExpenses[index]}
+                                    onCheckedChange={() => handleCheckboxChange(index)}
+                                />
+                                <div className="grid grid-cols-6 gap-2 items-center flex-grow">
+                                    <span className="col-span-3 truncate" title={expense.description}>{expense.description}</span>
+                                    <span className="col-span-2 text-muted-foreground">{expense.category}</span>
+                                    <span className="col-span-1 text-right font-mono">£{expense.amount.toFixed(2)}</span>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <DialogFooter>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleImportClick}>Import Selected Expenses</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
 }
