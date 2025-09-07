@@ -1,3 +1,4 @@
+
 // src/hooks/use-auth.tsx
 'use client';
 
@@ -54,8 +55,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: fullName });
-      // Re-set user to trigger re-render with updated profile
-      setUser({ ...userCredential.user, displayName: fullName });
+      // Force a reload of the user to get the updated profile
+      await userCredential.user.reload();
+      // The onAuthStateChanged listener will now pick up the updated user
+      setUser(auth.currentUser);
+
     } catch (error) {
        console.error('Error signing up with email and password:', error);
        throw error;
