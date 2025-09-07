@@ -94,7 +94,7 @@ export default function AssetsPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {assets.map((asset) => (
-            <Link href={`/assets`} key={asset.id} className="group">
+            <Link href={`/assets/${asset.id}`} key={asset.id} className="group">
               <Card className="flex flex-col h-full transition-all group-hover:shadow-lg group-hover:-translate-y-1">
                 <CardHeader className="relative p-0">
                   <DropdownMenu>
