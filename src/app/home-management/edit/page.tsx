@@ -36,6 +36,7 @@ import { enGB } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   propertyAddress: z.string().min(5, 'Property address is required.'),
@@ -215,7 +216,7 @@ export default function EditHomeManagementPage() {
                                     {field.value ? format(field.value, "PPP", { locale: enGB }) : <span>Pick a date</span>}
                                 </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
+                                <PopoverContent className="w-auto p-0" align="start">
                                 <Calendar
                                     mode="single"
                                     selected={field.value}
@@ -223,8 +224,10 @@ export default function EditHomeManagementPage() {
                                     disabled={(date) =>
                                     date > new Date() || date < new Date("1900-01-01")
                                     }
-                                    initialFocus
                                     locale={enGB}
+                                    captionLayout="dropdown-buttons"
+                                    fromYear={new Date().getFullYear() - 100}
+                                    toYear={new Date().getFullYear()}
                                 />
                                 </PopoverContent>
                             </Popover>

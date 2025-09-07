@@ -153,7 +153,7 @@ export default function HomeSetupPage() {
                             {field.value ? format(field.value, "PPP", { locale: enGB }) : <span>Pick a date</span>}
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
+                        <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
                             selected={field.value}
@@ -161,8 +161,10 @@ export default function HomeSetupPage() {
                             disabled={(date) =>
                               date > new Date() || date < new Date("1900-01-01")
                             }
-                            initialFocus
                             locale={enGB}
+                            captionLayout="dropdown-buttons"
+                            fromYear={new Date().getFullYear() - 100}
+                            toYear={new Date().getFullYear()}
                           />
                         </PopoverContent>
                       </Popover>
@@ -201,5 +203,3 @@ export default function HomeSetupPage() {
     </div>
   );
 }
-
-    
