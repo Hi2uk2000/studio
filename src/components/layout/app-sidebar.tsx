@@ -93,7 +93,8 @@ export function AppSidebar() {
   const { user, loading } = useAuth();
   const pathname = usePathname();
 
-  if (pathname === '/login' || loading) {
+  const noSidebarRoutes = ['/login', '/register', '/register/home-setup'];
+  if (noSidebarRoutes.includes(pathname) || loading) {
     return null;
   }
 
@@ -103,7 +104,7 @@ export function AppSidebar() {
         <div className="flex h-16 items-center border-b px-6">
           <Link href="/" className="flex items-center gap-2 font-bold font-headline">
             <Home className="h-7 w-7 text-primary" />
-            <span className="text-lg">HomeHub</span>
+            <span className="text-lg">AssetStream</span>
           </Link>
         </div>
         <div className="flex-1 overflow-y-auto p-4">
@@ -117,7 +118,7 @@ export function AppSidebar() {
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-card px-4 md:hidden">
         <Link href="/" className="flex items-center gap-2 font-bold font-headline">
           <Home className="h-7 w-7 text-primary" />
-          <span className="text-lg">HomeHub</span>
+          <span className="text-lg">AssetStream</span>
         </Link>
         <Sheet>
           <SheetTrigger asChild>
@@ -130,7 +131,7 @@ export function AppSidebar() {
             <div className="flex h-16 items-center border-b px-2 mb-4">
                 <Link href="/" className="flex items-center gap-2 font-semibold">
                     <Home className="h-7 w-7 text-primary" />
-                    <span className="text-lg">HomeHub</span>
+                    <span className="text-lg">AssetStream</span>
                 </Link>
             </div>
             <SidebarNav />

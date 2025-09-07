@@ -7,7 +7,7 @@ import { AuthProvider } from '@/hooks/use-auth';
 import { AuthLayout } from '@/components/layout/auth-provider';
 
 export const metadata: Metadata = {
-  title: 'HomeHub',
+  title: 'AssetStream',
   description: 'Your all-in-one home management solution.',
 };
 

@@ -4,7 +4,11 @@
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Home } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Home, Key, Mail } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -38,15 +42,48 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-            <div className="flex justify-center items-center gap-2 mb-4">
-              <Home className="h-8 w-8 text-primary" />
-              <h1 className="text-3xl font-bold font-headline">HomeHub</h1>
-            </div>
-          <CardTitle className="text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Sign in to manage your home.</CardDescription>
+          <div className="flex justify-center items-center gap-2 mb-4">
+            <Home className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold font-headline">AssetStream</h1>
+          </div>
+          <CardTitle className="text-2xl">Welcome back.</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input id="email" type="email" placeholder="you@example.com" className="pl-10" />
+              </div>
+            </div>
+            <div className="space-y-2">
+               <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link href="#" className="text-sm text-primary hover:underline">
+                  Forgot Password?
+                </Link>
+              </div>
+              <div className="relative">
+                <Key className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input id="password" type="password" placeholder="••••••••" className="pl-10" />
+              </div>
+            </div>
+            <div className="flex items-center">
+              <Checkbox id="remember-me" />
+              <Label htmlFor="remember-me" className="ml-2">Remember me</Label>
+            </div>
+            <Button className="w-full">
+              LOGIN
+            </Button>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              </div>
+            </div>
             <Button
               variant="outline"
               className="w-full"
@@ -56,6 +93,12 @@ export default function LoginPage() {
               <GoogleIcon className="mr-2 h-5 w-5" />
               Sign in with Google
             </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              Don't have an account?{' '}
+              <Link href="/register" className="font-semibold text-primary hover:underline">
+                Sign up here
+              </Link>
+            </p>
           </div>
         </CardContent>
       </Card>

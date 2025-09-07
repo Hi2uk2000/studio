@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 const protectedRoutes = ['/', '/expenses', '/maintenance', '/documents', '/recommendations'];
+const publicRoutes = ['/login', '/register', '/register/home-setup'];
+
 
 export function AuthLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -13,9 +15,19 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !user && protectedRoutes.includes(pathname)) {
+    if (loading) return;
+
+    const isProtectedRoute = protectedRoutes.includes(pathname);
+    const isPublicRoute = publicRoutes.includes(pathname);
+
+    if (!user && isProtectedRoute) {
       router.push('/login');
     }
+    
+    if(user && isPublicRoute){
+       router.push('/');
+    }
+    
   }, [user, loading, router, pathname]);
 
   if (loading) {
@@ -26,7 +38,7 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
     return null; // or a loading spinner
   }
   
-  if(user && pathname === '/login'){
+  if(user && publicRoutes.includes(pathname)){
     return null;
   }
 
