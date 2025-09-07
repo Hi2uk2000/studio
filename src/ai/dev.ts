@@ -3,3 +3,4 @@ config();
 
 import '@/ai/flows/categorize-expenses.ts';
 import '@/ai/flows/recommend-service-providers.ts';
+import '@/ai/flows/extract-expenses-from-statement.ts';

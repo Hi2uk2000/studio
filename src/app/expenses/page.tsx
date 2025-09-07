@@ -7,8 +7,12 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, UploadCloud, Loader2 } from 'lucide-react';
 import RecurringBillsTable from '@/components/expenses/recurring-bills-table';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { extractExpensesFromStatement } from '@/ai/flows/extract-expenses-from-statement';
+import { Label } from '@/components/ui/label';
 
 export interface Expense {
   id: string;
@@ -44,6 +48,9 @@ const initialRecurringBills: RecurringBill[] = [
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
   const [recurringBills, setRecurringBills] = useState<RecurringBill[]>(initialRecurringBills);
+  const [statementText, setStatementText] = useState('');
+  const [isExtracting, setIsExtracting] = useState(false);
+  const { toast } = useToast();
 
   const addExpense = (expense: Omit<Expense, 'id' | 'date'>) => {
     const newExpense: Expense = {
@@ -52,6 +59,34 @@ export default function ExpensesPage() {
       date: new Date().toISOString(),
     };
     setExpenses([newExpense, ...expenses]);
+  };
+
+  const handleExtractExpenses = async () => {
+    if (!statementText.trim()) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Statement content cannot be empty.' });
+        return;
+    }
+    setIsExtracting(true);
+    try {
+        const result = await extractExpensesFromStatement({ statement: statementText });
+        const newExpenses = result.expenses.map((exp, index) => ({
+            ...exp,
+            id: `statement-${Date.now()}-${index}`,
+            date: new Date().toISOString(),
+            includeInSpend: true,
+        }));
+        setExpenses(prev => [...newExpenses, ...prev]);
+        toast({
+            title: 'Extraction Complete',
+            description: `Successfully extracted and added ${newExpenses.length} expenses.`,
+        });
+        setStatementText('');
+    } catch (error) {
+        console.error('Failed to extract expenses from statement:', error);
+        toast({ variant: 'destructive', title: 'Extraction Failed', description: 'Could not extract expenses. Please check the statement format.' });
+    } finally {
+        setIsExtracting(false);
+    }
   };
 
   return (
@@ -72,7 +107,7 @@ export default function ExpensesPage() {
         </TabsList>
         <TabsContent value="one-off">
             <div className="grid gap-8 lg:grid-cols-3 mt-6">
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-1 space-y-8">
                   <Card>
                     <CardHeader>
                       <CardTitle>Add New Expense</CardTitle>
@@ -80,6 +115,33 @@ export default function ExpensesPage() {
                     </CardHeader>
                     <CardContent>
                       <ExpenseForm onAddExpense={addExpense} />
+                    </CardContent>
+                  </Card>
+                   <Card>
+                    <CardHeader>
+                      <CardTitle>Import from Statement</CardTitle>
+                      <CardDescription>Paste the content of a bank or credit card statement to automatically extract expenses.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="statement-input">Paste Statement Content</Label>
+                            <Textarea
+                                id="statement-input"
+                                value={statementText}
+                                onChange={(e) => setStatementText(e.target.value)}
+                                placeholder="Paste your statement text here. The AI will parse the transactions, categorise them, and add them to your expense history."
+                                rows={8}
+                                disabled={isExtracting}
+                            />
+                        </div>
+                        <Button onClick={handleExtractExpenses} disabled={isExtracting} className="w-full">
+                            {isExtracting ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <UploadCloud className="mr-2 h-4 w-4" />
+                            )}
+                            Extract Expenses
+                        </Button>
                     </CardContent>
                   </Card>
                 </div>
