@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo } from "react";
-import { Bed, Bath, Ruler, Zap, Hammer, FileText, Banknote, Building, Calendar, BarChart, Bell, Home, CheckCircle, Clock, Edit, Calculator, Info, Percent, AlertTriangle } from "lucide-react"
+import { Bed, Bath, Ruler, Zap, Hammer, FileText, Banknote, Building, Calendar, BarChart, Bell, Home, CheckCircle, Clock, Edit, Calculator, Info, Percent, AlertTriangle, Shield } from "lucide-react"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -34,10 +34,14 @@ const initialQuickStats = {
   mortgageBalance: 270000,
   interestRate: 3.5, // percentage
   renewalDate: new Date('2024-06-01'), // Set to a past date to show the renewal reminder
-  insurancePremium: 450,
   lastMonthsBills: 430,
   regularMonthlyPayment: 1340,
   paymentDayOfMonth: 1,
+};
+
+const initialInsuranceDetails = {
+    buildings: 300,
+    contents: 150,
 };
 
 const recentActivity = [
@@ -50,9 +54,15 @@ const recentActivity = [
 export default function HomeManagementPage() {
   const [propertyDetails, setPropertyDetails] = useState(initialPropertyDetails);
   const [quickStats, setQuickStats] = useState(initialQuickStats);
+  const [insuranceDetails, setInsuranceDetails] = useState(initialInsuranceDetails);
   const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false);
+  const [isInsuranceDialogOpen, setIsInsuranceDialogOpen] = useState(false);
 
   const isRenewalDue = new Date() > quickStats.renewalDate;
+  
+  const totalInsurancePremium = useMemo(() => {
+    return Object.values(insuranceDetails).reduce((acc, val) => acc + (val || 0), 0);
+  }, [insuranceDetails]);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -175,12 +185,7 @@ export default function HomeManagementPage() {
                     <span className="flex items-center text-muted-foreground"><Calendar className="mr-2 h-5 w-5" /> Renewal Date</span>
                     <span className="font-medium">{format(quickStats.renewalDate, 'd MMM yyyy', { locale: enGB })}</span>
                  </div>
-                  <Separator />
-                 <div className="flex items-center justify-between">
-                    <span className="flex items-center text-muted-foreground"><FileText className="mr-2 h-5 w-5" /> Insurance Premium</span>
-                    <span className="font-medium">£{quickStats.insurancePremium.toLocaleString()}/yr</span>
-                 </div>
-                  <Separator />
+                 <Separator />
                  <div className="flex items-center justify-between">
                     <span className="flex items-center text-muted-foreground"><Banknote className="mr-2 h-5 w-5" /> Last Month's Bills</span>
                     <span className="font-medium">£{quickStats.lastMonthsBills.toLocaleString()}</span>
@@ -207,7 +212,48 @@ export default function HomeManagementPage() {
                 </CardContent>
             </Card>
 
-             <Card className="lg:col-span-3">
+            <Card className="lg:col-span-3">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-primary"/>
+                    Insurance Details
+                </CardTitle>
+                 <Dialog open={isInsuranceDialogOpen} onOpenChange={setIsInsuranceDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                            <Edit className="mr-2 h-4 w-4"/>
+                            Edit
+                        </Button>
+                    </DialogTrigger>
+                    <InsuranceDialog
+                        details={insuranceDetails}
+                        onSave={(newDetails) => {
+                            setInsuranceDetails(newDetails);
+                            setIsInsuranceDialogOpen(false);
+                        }}
+                        onClose={() => setIsInsuranceDialogOpen(false)}
+                    />
+                </Dialog>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                 <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Buildings Insurance</span>
+                    <span className="font-medium">£{insuranceDetails.buildings.toLocaleString()}/yr</span>
+                 </div>
+                  <Separator />
+                 <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Contents Insurance</span>
+                    <span className="font-medium">£{insuranceDetails.contents.toLocaleString()}/yr</span>
+                 </div>
+                  <Separator />
+                  <div className="flex items-center justify-between font-bold">
+                    <span>Total Premium</span>
+                    <span>£{totalInsurancePremium.toLocaleString()}/yr</span>
+                 </div>
+              </CardContent>
+            </Card>
+
+             <Card className="lg:col-span-full">
                 <CardHeader>
                     <CardTitle>Recent Activity</CardTitle>
                     <CardDescription>A log of recent events related to your property.</CardDescription>
@@ -319,13 +365,48 @@ function QuickStatsDialog({ stats, onSave, onClose }: {
                     </Popover>
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="insurancePremium">Insurance Premium (£/yr)</Label>
-                    <Input id="insurancePremium" type="number" value={currentStats.insurancePremium} onChange={e => setCurrentStats(prev => ({ ...prev, insurancePremium: Number(e.target.value) }))} />
-                </div>
-                <div className="space-y-2">
                     <Label htmlFor="lastMonthsBills">Last Month's Bills (£)</Label>
                     <Input id="lastMonthsBills" type="number" value={currentStats.lastMonthsBills} onChange={e => setCurrentStats(prev => ({ ...prev, lastMonthsBills: Number(e.target.value) }))} />
                 </div>
+                <DialogFooter>
+                    <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
+                    <Button type="submit">Save Changes</Button>
+                </DialogFooter>
+            </form>
+        </DialogContent>
+    );
+}
+
+function InsuranceDialog({ details, onSave, onClose }: {
+  details: typeof initialInsuranceDetails;
+  onSave: (data: typeof initialInsuranceDetails) => void;
+  onClose: () => void;
+}) {
+    const [currentDetails, setCurrentDetails] = useState(details);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSave(currentDetails);
+    };
+
+    return (
+        <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+                <DialogTitle>Edit Insurance Premiums</DialogTitle>
+                <DialogDescription>
+                    Update your annual insurance premium costs here.
+                </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4 py-4">
+                <div className="space-y-2">
+                    <Label htmlFor="buildings">Buildings Insurance (£/yr)</Label>
+                    <Input id="buildings" type="number" value={currentDetails.buildings} onChange={e => setCurrentDetails(prev => ({ ...prev, buildings: Number(e.target.value) }))} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="contents">Contents Insurance (£/yr)</Label>
+                    <Input id="contents" type="number" value={currentDetails.contents} onChange={e => setCurrentDetails(prev => ({ ...prev, contents: Number(e.target.value) }))} />
+                </div>
+                {/* Add other insurance types here as needed */}
                 <DialogFooter>
                     <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
                     <Button type="submit">Save Changes</Button>
