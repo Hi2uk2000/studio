@@ -17,6 +17,7 @@ import {
   signOut as firebaseSignOut,
   createUserWithEmailAndPassword,
   updateProfile,
+  signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
@@ -24,6 +25,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithEmailAndPassword: (email: string, password: string) => Promise<void>;
   signUpWithEmailAndPassword: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -48,18 +50,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error('Error signing in with Google:', error);
+      throw error;
+    }
+  };
+
+  const signInWithEmailAndPassword = async (email: string, password: string) => {
+    try {
+      await firebaseSignInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      console.error('Error signing in with email and password:', error);
+      throw error;
     }
   };
 
   const signUpWithEmailAndPassword = async (email: string, password: string, fullName: string) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, { displayName: fullName });
-      // Force a reload of the user to get the updated profile
-      await userCredential.user.reload();
-      // The onAuthStateChanged listener will now pick up the updated user
-      setUser(auth.currentUser);
-
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, { displayName: fullName });
+        // Manually update the user state after profile update
+        setUser({ ...auth.currentUser });
+      }
     } catch (error) {
        console.error('Error signing up with email and password:', error);
        throw error;
@@ -76,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut, signUpWithEmailAndPassword }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut, signUpWithEmailAndPassword, signInWithEmailAndPassword }}>
       {children}
     </AuthContext.Provider>
   );

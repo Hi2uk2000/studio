@@ -1,3 +1,4 @@
+
 // src/app/register/page.tsx
 'use client';
 
@@ -11,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Home, User, Mail, Key } from 'lucide-react';
+import { Home, User, Mail, Key, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
@@ -52,17 +53,23 @@ export default function RegistrationPage() {
         description: "We've created your account for you.",
       });
 
+      // The AuthProvider's onAuthStateChanged will handle the redirect
+      // to the correct page based on the user's role. We can just push
+      // them to the dashboard and let the logic sort it out.
       if (data.role === 'homeowner') {
         router.push('/register/home-setup');
       } else {
         router.push('/');
       }
+
     } catch (error: any) {
       console.error('Registration failed:', error);
        toast({
         variant: 'destructive',
         title: 'Registration Failed',
-        description: error.message || 'An unexpected error occurred. Please try again.',
+        description: error.code === 'auth/email-already-in-use' 
+            ? 'This email is already registered. Please log in.'
+            : (error.message || 'An unexpected error occurred. Please try again.'),
       });
     } finally {
       setIsLoading(false);
@@ -122,15 +129,15 @@ export default function RegistrationPage() {
                     defaultValue={field.value}
                     className="grid grid-cols-1 md:grid-cols-3 gap-4"
                   >
-                    <Label className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary">
+                    <Label className="cursor-pointer flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary">
                       <RadioGroupItem value="homeowner" id="homeowner" className="sr-only" />
                       <span>Homeowner</span>
                     </Label>
-                    <Label className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary">
+                    <Label className="cursor-pointer flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary">
                       <RadioGroupItem value="landlord" id="landlord" className="sr-only" />
                        <span>Landlord</span>
                     </Label>
-                     <Label className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary cursor-not-allowed opacity-50">
+                     <Label className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 cursor-not-allowed opacity-50">
                       <RadioGroupItem value="tenant" id="tenant" className="sr-only" disabled/>
                       <span>Tenant</span>
                       <span className="text-xs text-muted-foreground mt-1">(By invitation only)</span>
@@ -142,7 +149,8 @@ export default function RegistrationPage() {
             />
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Creating Account...' : 'CREATE ACCOUNT'}
+              {isLoading && <Loader2 className="animate-spin" />}
+              CREATE ACCOUNT
             </Button>
             
             <p className="text-center text-sm text-muted-foreground">

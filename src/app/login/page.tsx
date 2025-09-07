@@ -1,3 +1,4 @@
+
 // src/app/login/page.tsx
 'use client';
 
@@ -7,10 +8,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Home, Key, Mail } from 'lucide-react';
+import { Home, Key, Mail, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
 
 // SVG for Google Icon
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -22,10 +28,24 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const formSchema = z.object({
+  email: z.string().email('Invalid email address.'),
+  password: z.string().min(1, 'Password is required.'),
+  rememberMe: z.boolean().optional(),
+});
+
+type LoginFormValues = z.infer<typeof formSchema>;
 
 export default function LoginPage() {
-  const { user, signInWithGoogle, loading } = useAuth();
+  const { user, signInWithGoogle, signInWithEmailAndPassword, loading } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { email: '', password: '' },
+  });
 
   useEffect(() => {
     if (user) {
@@ -33,8 +53,25 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  if (loading || user) {
-    // Show a loading state or a blank page while redirecting
+  async function onSubmit(data: LoginFormValues) {
+    setIsSubmitting(true);
+    try {
+      await signInWithEmailAndPassword(data.email, data.password);
+      // Let the useEffect handle the redirect
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: 'Invalid email or password. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+  
+  const isPageLoading = loading || user;
+
+  if (isPageLoading) {
     return <div className="flex items-center justify-center min-h-screen bg-background">Loading...</div>;
   }
 
@@ -49,57 +86,81 @@ export default function LoginPage() {
           <CardTitle className="text-2xl">Welcome back.</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="email" type="email" placeholder="you@example.com" className="pl-10" />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input type="email" placeholder="you@example.com" className="pl-10" {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Password</FormLabel>
+                      <Link href="#" className="text-sm text-primary hover:underline">
+                        Forgot Password?
+                      </Link>
+                    </div>
+                    <FormControl>
+                       <div className="relative">
+                        <Key className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input type="password" placeholder="••••••••" className="pl-10" {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex items-center">
+                <Checkbox id="remember-me" />
+                <Label htmlFor="remember-me" className="ml-2 font-normal">Remember me</Label>
               </div>
-            </div>
-            <div className="space-y-2">
-               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link href="#" className="text-sm text-primary hover:underline">
-                  Forgot Password?
+
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="animate-spin" />}
+                LOGIN
+              </Button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={signInWithGoogle}
+                disabled={isSubmitting}
+                type="button"
+              >
+                <GoogleIcon className="mr-2 h-5 w-5" />
+                Sign in with Google
+              </Button>
+              <p className="text-center text-sm text-muted-foreground">
+                Don't have an account?{' '}
+                <Link href="/register" className="font-semibold text-primary hover:underline">
+                  Sign up here
                 </Link>
-              </div>
-              <div className="relative">
-                <Key className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="password" type="password" placeholder="••••••••" className="pl-10" />
-              </div>
-            </div>
-            <div className="flex items-center">
-              <Checkbox id="remember-me" />
-              <Label htmlFor="remember-me" className="ml-2">Remember me</Label>
-            </div>
-            <Button className="w-full">
-              LOGIN
-            </Button>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={signInWithGoogle}
-              disabled={loading}
-            >
-              <GoogleIcon className="mr-2 h-5 w-5" />
-              Sign in with Google
-            </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
-              <Link href="/register" className="font-semibold text-primary hover:underline">
-                Sign up here
-              </Link>
-            </p>
-          </div>
+              </p>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
