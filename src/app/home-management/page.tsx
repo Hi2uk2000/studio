@@ -8,18 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Link from "next/link";
 
 
 const initialPropertyDetails = {
@@ -49,15 +38,6 @@ const recentActivity = [
 
 export default function HomeManagementPage() {
   const [propertyDetails, setPropertyDetails] = useState(initialPropertyDetails);
-  const [isPropertyDialogOpen, setIsPropertyDialogOpen] = useState(false);
-
-  const handleSavePropertyDetails = (data: any) => {
-      console.log('Saving data...', data);
-      // In a real app, you'd save this to a database
-      // For now, we just update the state
-      setPropertyDetails(currentDetails => ({...currentDetails, ...data}));
-      setIsPropertyDialogOpen(false);
-  }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
@@ -95,19 +75,12 @@ export default function HomeManagementPage() {
             <Card className="lg:col-span-2">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Property Details</CardTitle>
-                 <Dialog open={isPropertyDialogOpen} onOpenChange={setIsPropertyDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                            <Edit className="mr-2 h-4 w-4"/>
-                            Edit
-                        </Button>
-                    </DialogTrigger>
-                    <PropertyDetailsDialog 
-                        details={propertyDetails}
-                        onSave={handleSavePropertyDetails}
-                        onClose={() => setIsPropertyDialogOpen(false)}
-                    />
-                </Dialog>
+                <Button variant="outline" size="sm" asChild>
+                    <Link href="/home-management/edit">
+                        <Edit className="mr-2 h-4 w-4"/>
+                        Edit
+                    </Link>
+                </Button>
               </CardHeader>
               <CardContent className="space-y-4">
                  <div className="flex items-center justify-between">
@@ -215,85 +188,4 @@ export default function HomeManagementPage() {
       </Tabs>
     </div>
   );
-}
-
-function PropertyDetailsDialog({ details, onSave, onClose }: { details: typeof initialPropertyDetails, onSave: (data: any) => void, onClose: () => void }) {
-    const [formData, setFormData] = useState(details);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { id, value } = e.target;
-        setFormData(prev => ({...prev, [id]: value}));
-    }
-    
-    const handleSelectChange = (id: string, value: string) => {
-        setFormData(prev => ({...prev, [id]: value}));
-    }
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSave(formData);
-    }
-    
-    return (
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Edit Property Details</DialogTitle>
-                <DialogDescription>
-                    Update the core information about your property.
-                </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                 <div className="space-y-2">
-                  <Label htmlFor="address">Property Address</Label>
-                  <Input id="address" value={formData.address} onChange={handleChange} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="bedrooms">Bedrooms</Label>
-                        <Input id="bedrooms" type="number" value={formData.bedrooms} onChange={handleChange} />
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="bathrooms">Bathrooms</Label>
-                        <Input id="bathrooms" type="number" value={formData.bathrooms} onChange={handleChange} />
-                    </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="size">Size (sq ft)</Label>
-                        <Input id="size" value={formData.size} onChange={handleChange}/>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Property Type</Label>
-                         <Select value={formData.propertyType} onValueChange={(value) => handleSelectChange('propertyType', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="detached">Detached House</SelectItem>
-                            <SelectItem value="semi-detached">Semi-Detached House</SelectItem>
-                            <SelectItem value="terraced">Terraced House</SelectItem>
-                            <SelectItem value="flat">Flat / Apartment</SelectItem>
-                            <SelectItem value="bungalow">Bungalow</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="epcRating">EPC Rating</Label>
-                        <Input id="epcRating" value={formData.epcRating} onChange={handleChange} />
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="councilTaxBand">Council Tax Band</Label>
-                        <Input id="councilTaxBand" value={formData.councilTaxBand} onChange={handleChange} />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button type="submit">Save Changes</Button>
-                </DialogFooter>
-            </form>
-        </DialogContent>
-    );
 }
