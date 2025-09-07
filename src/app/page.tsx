@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from 'next/link';
 import { useAuth } from "@/hooks/use-auth";
 import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 
 const upcomingReminders = [
   { id: 1, event: 'Boiler Service Due', dueIn: 'In 12 days', dueDate: '1 Oct 2025', icon: AlertTriangle, color: 'text-amber-500' },

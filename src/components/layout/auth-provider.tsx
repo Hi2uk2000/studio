@@ -15,33 +15,32 @@ export function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (loading) return;
+    // if (loading) return;
 
-    const isProtectedRoute = protectedRoutes.some(route => pathname === route);
-    const isPublicRoute = publicRoutes.includes(pathname);
+    // const isProtectedRoute = protectedRoutes.some(route => pathname === route);
+    // const isPublicRoute = publicRoutes.includes(pathname);
     
-    if (isProtectedRoute && !user) {
-      router.push('/login');
-    }
+    // if (isProtectedRoute && !user) {
+    //   router.push('/login');
+    // }
      
-    // This was removed in the previous turn, but it is needed to redirect logged in users away from public pages.
-    if(user && isPublicRoute){
-       router.push('/');
-    }
+    // if(user && isPublicRoute){
+    //    router.push('/');
+    // }
     
   }, [user, loading, router, pathname]);
 
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen bg-background">Loading...</div>;
-  }
+  // if (loading) {
+  //   return <div className="flex items-center justify-center min-h-screen bg-background">Loading...</div>;
+  // }
   
-  if (!user && protectedRoutes.some(route => pathname === route)) {
-    return null; // Or a loading spinner, to prevent flicker while redirecting
-  }
+  // if (!user && protectedRoutes.some(route => pathname === route)) {
+  //   return null; // Or a loading spinner, to prevent flicker while redirecting
+  // }
   
-  if(user && publicRoutes.includes(pathname)){
-     return null; // Or a loading spinner
-  }
+  // if(user && publicRoutes.includes(pathname)){
+  //    return null; // Or a loading spinner
+  // }
 
   return <>{children}</>;
 }
