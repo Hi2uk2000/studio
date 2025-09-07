@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -29,20 +30,20 @@ const navItems = [
 
 function SidebarNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  
   return (
     <nav className="flex-1 space-y-2">
       {navItems.map((item) => (
-        <Link
+        <Button
           key={item.label}
-          href={item.href}
-          className={cn(
-            'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:bg-primary/10 hover:text-primary',
-            pathname === item.href && 'bg-primary/10 text-primary'
-          )}
+          variant={pathname === item.href ? "secondary" : "ghost"}
+          className="w-full justify-start gap-3"
+          onClick={() => router.push(item.href)}
         >
           <item.icon className="h-5 w-5" />
           <span className="font-medium">{item.label}</span>
-        </Link>
+        </Button>
       ))}
     </nav>
   );
