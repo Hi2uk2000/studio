@@ -23,9 +23,9 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/home-management', label: 'Home Management', icon: Home },
   { href: '/expenses', label: 'Expenses', icon: CreditCard },
+  { href: '/assets', label: 'Assets', icon: Building },
   { href: '/maintenance', label: 'Maintenance', icon: Wrench },
   { href: '/documents', label: 'Documents', icon: FileText },
-  { href: '/assets', label: 'Assets', icon: Building },
   { href: '/recommendations', label: 'AI Services', icon: Sparkles },
 ];
 
