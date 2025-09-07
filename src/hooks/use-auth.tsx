@@ -14,6 +14,8 @@ import {
   GoogleAuthProvider,
   User,
   signOut as firebaseSignOut,
+  createUserWithEmailAndPassword,
+  updateProfile,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
@@ -21,6 +23,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signUpWithEmailAndPassword: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -47,6 +50,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signUpWithEmailAndPassword = async (email: string, password: string, fullName: string) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: fullName });
+      // Re-set user to trigger re-render with updated profile
+      setUser({ ...userCredential.user, displayName: fullName });
+    } catch (error) {
+       console.error('Error signing up with email and password:', error);
+       throw error;
+    }
+  };
+
+
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
@@ -56,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut, signUpWithEmailAndPassword }}>
       {children}
     </AuthContext.Provider>
   );

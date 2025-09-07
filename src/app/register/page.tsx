@@ -14,6 +14,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Home, User, Mail, Key } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 
 const formSchema = z.object({
   fullName: z.string().min(3, 'Full name is required.'),
@@ -29,6 +30,7 @@ type RegistrationFormValues = z.infer<typeof formSchema>;
 export default function RegistrationPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { signUpWithEmailAndPassword } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<RegistrationFormValues>({
@@ -40,12 +42,11 @@ export default function RegistrationPage() {
     },
   });
 
-  function onSubmit(data: RegistrationFormValues) {
+  async function onSubmit(data: RegistrationFormValues) {
     setIsLoading(true);
-    console.log(data);
-
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await signUpWithEmailAndPassword(data.email, data.password, data.fullName);
+      
       toast({
         title: 'Account Created!',
         description: "We've created your account for you.",
@@ -56,8 +57,16 @@ export default function RegistrationPage() {
       } else {
         router.push('/');
       }
+    } catch (error: any) {
+      console.error('Registration failed:', error);
+       toast({
+        variant: 'destructive',
+        title: 'Registration Failed',
+        description: error.message || 'An unexpected error occurred. Please try again.',
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   }
 
   return (
