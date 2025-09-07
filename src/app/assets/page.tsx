@@ -1,3 +1,4 @@
+
 // src/app/assets/page.tsx
 'use client';
 
@@ -56,7 +57,9 @@ const initialAssets = [
 export default function AssetsPage() {
   const [assets, setAssets] = useState(initialAssets);
   
-  const handleDelete = (id: number) => {
+  const handleDelete = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    e.preventDefault();
     setAssets(assets.filter(asset => asset.id !== id));
   };
 
@@ -91,44 +94,46 @@ export default function AssetsPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {assets.map((asset) => (
-            <Card key={asset.id} className="flex flex-col">
-              <CardHeader className="relative p-0">
-                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 z-10 bg-background/50 hover:bg-background/80">
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                            <Edit className="mr-2 h-4 w-4" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(asset.id)}>
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-                <Image
-                  src={asset.imageUrl}
-                  alt={asset.name}
-                  width={600}
-                  height={400}
-                  data-ai-hint={asset.imageHint}
-                  className="object-cover rounded-t-lg aspect-video"
-                />
-              </CardHeader>
-              <CardContent className="pt-4 flex-grow">
-                <h3 className="font-semibold text-lg">{asset.name}</h3>
-                <p className="text-sm text-muted-foreground">{asset.location}</p>
-                <div className="mt-2">
-                    <Badge variant="secondary">{asset.category}</Badge>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between text-xs text-muted-foreground">
-                <span>Purchased: {new Date(asset.purchaseDate).toLocaleDateString('en-GB')}</span>
-                <span>Warranty: {new Date(asset.warrantyExpiry).toLocaleDateString('en-GB')}</span>
-              </CardFooter>
-            </Card>
+            <Link href={`/assets`} key={asset.id} className="group">
+              <Card className="flex flex-col h-full transition-all group-hover:shadow-lg group-hover:-translate-y-1">
+                <CardHeader className="relative p-0">
+                  <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="absolute top-2 right-2 z-10 bg-background/50 hover:bg-background/80">
+                              <MoreVertical className="h-4 w-4" />
+                          </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={(e) => {e.stopPropagation(); e.preventDefault(); /* Logic to edit */}}>
+                              <Edit className="mr-2 h-4 w-4" /> Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={(e) => handleDelete(e, asset.id)}>
+                              <Trash2 className="mr-2 h-4 w-4" /> Delete
+                          </DropdownMenuItem>
+                      </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Image
+                    src={asset.imageUrl}
+                    alt={asset.name}
+                    width={600}
+                    height={400}
+                    data-ai-hint={asset.imageHint}
+                    className="object-cover rounded-t-lg aspect-video"
+                  />
+                </CardHeader>
+                <CardContent className="pt-4 flex-grow">
+                  <h3 className="font-semibold text-lg">{asset.name}</h3>
+                  <p className="text-sm text-muted-foreground">{asset.location}</p>
+                  <div className="mt-2">
+                      <Badge variant="secondary">{asset.category}</Badge>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between text-xs text-muted-foreground">
+                  <span>Purchased: {new Date(asset.purchaseDate).toLocaleDateString('en-GB')}</span>
+                  <span>Warranty: {new Date(asset.warrantyExpiry).toLocaleDateString('en-GB')}</span>
+                </CardFooter>
+              </Card>
+            </Link>
           ))}
         </div>
       )}

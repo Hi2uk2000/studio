@@ -1,7 +1,9 @@
+
 // src/app/home-management/page.tsx
 'use client';
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Bed, Bath, Ruler, Zap, Hammer, FileText, Banknote, Building, Calendar, BarChart, Bell, Home, CheckCircle, Clock, Edit, Calculator, Info, Percent, AlertTriangle, Shield } from "lucide-react"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -52,6 +54,7 @@ const recentActivity = [
 
 
 export default function HomeManagementPage() {
+  const router = useRouter();
   const [propertyDetails, setPropertyDetails] = useState(initialPropertyDetails);
   const [quickStats, setQuickStats] = useState(initialQuickStats);
   const [insuranceDetails, setInsuranceDetails] = useState(initialInsuranceDetails);
@@ -64,6 +67,10 @@ export default function HomeManagementPage() {
     return Object.values(insuranceDetails).reduce((acc, val) => acc + (val || 0), 0);
   }, [insuranceDetails]);
 
+  const handleTabChange = (value: string) => {
+    router.push(`/${value}`);
+  };
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       <div>
@@ -72,13 +79,13 @@ export default function HomeManagementPage() {
         </h1>
         <p className="text-muted-foreground">Your central hub for home management.</p>
       </div>
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs defaultValue="home-management" className="w-full" onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
-          <TabsTrigger value="overview">
+          <TabsTrigger value="home-management">
             <Home className="mr-2 h-4 w-4" />
             Overview
           </TabsTrigger>
-          <TabsTrigger value="financials">
+          <TabsTrigger value="expenses">
             <Banknote className="mr-2 h-4 w-4" />
             Financials
           </TabsTrigger>
@@ -95,7 +102,7 @@ export default function HomeManagementPage() {
             Documents
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="overview" className="mt-6">
+        <TabsContent value="home-management" className="mt-6">
            {isRenewalDue && (
               <Card className="mb-6 bg-amber-50 border border-amber-200">
                   <CardHeader className="flex flex-row items-center gap-4">
@@ -278,26 +285,11 @@ export default function HomeManagementPage() {
              </Card>
           </div>
         </TabsContent>
-        <TabsContent value="financials">
-            <div className="flex items-center justify-center h-96">
-                <p className="text-muted-foreground">Financials section coming soon!</p>
-            </div>
-        </TabsContent>
-        <TabsContent value="maintenance">
-            <div className="flex items-center justify-center h-96">
-                <p className="text-muted-foreground">Maintenance section coming soon!</p>
-            </div>
-        </TabsContent>
-        <TabsContent value="assets">
-            <div className="flex items-center justify-center h-96">
-                <p className="text-muted-foreground">Assets section coming soon!</p>
-            </div>
-        </TabsContent>
-        <TabsContent value="documents">
-            <div className="flex items-center justify-center h-96">
-                <p className="text-muted-foreground">Documents section coming soon!</p>
-            </div>
-        </TabsContent>
+        {/* The content for other tabs are placeholders as they will navigate away */}
+        <TabsContent value="expenses"></TabsContent>
+        <TabsContent value="maintenance"></TabsContent>
+        <TabsContent value="assets"></TabsContent>
+        <TabsContent value="documents"></TabsContent>
       </Tabs>
     </div>
   );

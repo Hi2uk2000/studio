@@ -1,7 +1,7 @@
 
 'use client';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { TrendingUp, Wrench, CreditCard, Calendar, Plus, BarChart, AlertTriangle, CheckCircle, CircleDot } from "lucide-react";
+import { TrendingUp, Wrench, CreditCard, Calendar, Plus, BarChart, AlertTriangle, CheckCircle, CircleDot, Building } from "lucide-react";
 import EquityChart from '@/components/dashboard/equity-chart';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,9 +11,9 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 const upcomingReminders = [
-  { id: 1, event: 'Boiler Service Due', dueIn: 'In 12 days', dueDate: '1 Oct 2025', icon: AlertTriangle, color: 'text-amber-500' },
-  { id: 2, event: 'Council Tax Payment', dueIn: 'In 18 days', dueDate: '7 Oct 2025', icon: CheckCircle, color: 'text-green-500' },
-  { id: 3, event: 'Home Insurance Renewal', dueIn: 'In 35 days', dueDate: '24 Oct 2025', icon: CircleDot, color: 'text-blue-500' },
+  { id: 1, event: 'Boiler Service Due', dueIn: 'In 12 days', dueDate: '1 Oct 2025', icon: AlertTriangle, color: 'text-amber-500', href: '/maintenance' },
+  { id: 2, event: 'Council Tax Payment', dueIn: 'In 18 days', dueDate: '7 Oct 2025', icon: CheckCircle, color: 'text-green-500', href: '/expenses' },
+  { id: 3, event: 'Home Insurance Renewal', dueIn: 'In 35 days', dueDate: '24 Oct 2025', icon: CircleDot, color: 'text-blue-500', href: '/home-management' },
 ];
 
 
@@ -59,7 +59,7 @@ export default function Home() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">EXPENSES</CardTitle>
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -67,18 +67,26 @@ export default function Home() {
             <div className="text-2xl font-bold">£1,850</div>
             <p className="text-xs text-red-500">-3.2% from last month</p>
           </CardContent>
+          <CardFooter className="pt-0">
+             <Button asChild size="sm" variant="link" className="px-0">
+                <Link href="/expenses">View detailed report</Link>
+            </Button>
+          </CardFooter>
         </Card>
 
         {/* Quick Actions */}
         <Card className="flex flex-col items-center justify-center bg-muted/40 border-dashed">
             <div className="space-y-4 text-center">
                 <h3 className="font-semibold">Quick Actions</h3>
-                <div className="flex gap-4">
-                    <Button asChild>
-                        <Link href="/expenses"><Plus/> Add Expense</Link>
+                <div className="flex flex-wrap justify-center gap-2">
+                    <Button asChild size="sm">
+                        <Link href="/expenses"><Plus/> Expense</Link>
                     </Button>
-                    <Button asChild variant="secondary">
-                        <Link href="/maintenance"><Plus/> Add Maintenance</Link>
+                    <Button asChild variant="secondary" size="sm">
+                        <Link href="/maintenance/add"><Plus/> Maintenance</Link>
+                    </Button>
+                     <Button asChild variant="secondary" size="sm">
+                        <Link href="/assets/add"><Plus/> Asset</Link>
                     </Button>
                 </div>
             </div>
@@ -119,25 +127,31 @@ export default function Home() {
             <CardTitle>Upcoming Reminders</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-4">
+            <ul className="space-y-0">
               {upcomingReminders.map(item => (
-                <li key={item.id} className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                        <item.icon className={cn("h-6 w-6", item.color)} />
+                 <li key={item.id}>
+                  <Link href={item.href} className="flex items-center gap-4 p-3 -m-3 rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                          <item.icon className={cn("h-6 w-6", item.color)} />
+                      </div>
+                    <div className="flex-grow">
+                      <p className="font-medium">{item.event}</p>
+                      <p className="text-sm text-muted-foreground">{item.dueIn}</p>
                     </div>
-                  <div className="flex-grow">
-                    <p className="font-medium">{item.event}</p>
-                    <p className="text-sm text-muted-foreground">{item.dueIn}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{item.dueDate}</p>
-                  </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium">{item.dueDate}</p>
+                    </div>
+                  </Link>
                 </li>
               ))}
             </ul>
           </CardContent>
            <CardFooter>
-            <Button variant="link" className="w-full">View all reminders</Button>
+            <Button variant="link" className="w-full" asChild>
+                <Link href="/maintenance">
+                    View all reminders
+                </Link>
+            </Button>
           </CardFooter>
         </Card>
       </div>

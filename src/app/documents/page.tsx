@@ -1,3 +1,4 @@
+
 // src/app/documents/page.tsx
 'use client';
 
@@ -122,7 +123,7 @@ export default function DocumentsPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Group</TableHead>
-                <TableHead>Linked Asset</TableHead>
+                <TableHead>Linked Task</TableHead>
                 <TableHead>Size</TableHead>
                 <TableHead>Uploaded</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -140,10 +141,12 @@ export default function DocumentsPage() {
                     <TableCell><Badge variant="secondary">{doc.type}</Badge></TableCell>
                     <TableCell>
                       {linkedTask ? (
-                        <Link href="/maintenance" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                          <Wrench className="h-4 w-4" />
-                          {linkedTask.title}
-                        </Link>
+                        <Button variant="link" asChild className="p-0 h-auto">
+                           <Link href="/maintenance" className="flex items-center gap-2 text-sm text-primary hover:underline">
+                            <Wrench className="h-4 w-4" />
+                            {linkedTask.title}
+                          </Link>
+                        </Button>
                       ) : (
                         <span className="text-sm text-muted-foreground">N/A</span>
                       )}
@@ -261,5 +264,3 @@ function DocumentFormDialog({ document, onSave, onClose, groups, maintenanceTask
     </DialogContent>
   );
 }
-
-    
