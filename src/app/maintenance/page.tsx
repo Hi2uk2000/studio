@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Wrench, Calendar, Plus, FileText, Paperclip, MoreVertical, Edit, Trash2, Bot } from "lucide-react";
+import { Wrench, Calendar, Plus, FileText, Paperclip, MoreVertical, Edit, Trash2, Bot, Building } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
@@ -24,15 +24,16 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Calendar as CalendarPicker } from '@/components/ui/calendar';
+import Link from 'next/link';
 
 
 const initialTasks = [
-  { id: 1, title: 'Service Boiler', dueDate: '2024-11-15', status: 'Upcoming', priority: 'High', frequency: 'Annually' },
-  { id: 2, title: 'Clean Gutters', dueDate: '2024-11-20', status: 'Upcoming', priority: 'Medium', frequency: 'Annually' },
-  { id: 3, title: 'Test Smoke Alarms', dueDate: '2024-12-01', status: 'Upcoming', priority: 'High', frequency: 'Monthly' },
-  { id: 4, title: 'Paint Living Room', dueDate: '2025-01-10', status: 'Scheduled', priority: 'Low', frequency: 'One-off' },
-  { id: 5, title: 'Check Roof for Leaks', dueDate: '2024-09-30', status: 'Overdue', priority: 'High', frequency: 'Every 5 years' },
-  { id: 6, title: 'Deep Clean Carpets', dueDate: '2024-10-25', status: 'Upcoming', priority: 'Low', frequency: 'Annually' },
+  { id: 1, title: 'Annual Service', assetName: 'Vaillant EcoTec Plus Boiler', assetId: 1, dueDate: '2024-11-15', status: 'Upcoming', priority: 'High', frequency: 'Annually' },
+  { id: 2, title: 'Clean Gutters', assetName: 'General Property', assetId: null, dueDate: '2024-11-20', status: 'Upcoming', priority: 'Medium', frequency: 'Annually' },
+  { id: 3, title: 'Test Smoke Alarms', assetName: 'General Property', assetId: null, dueDate: '2024-12-01', status: 'Upcoming', priority: 'High', frequency: 'Monthly' },
+  { id: 4, title: 'Paint Living Room', assetName: 'General Property', assetId: null, dueDate: '2025-01-10', status: 'Scheduled', priority: 'Low', frequency: 'One-off' },
+  { id: 5, title: 'Check Roof for Leaks', assetName: 'General Property', assetId: null, dueDate: '2024-09-30', status: 'Overdue', priority: 'High', frequency: 'Every 5 years' },
+  { id: 6, title: 'Deep Clean Carpets', assetName: 'General Property', assetId: null, dueDate: '2024-10-25', status: 'Upcoming', priority: 'Low', frequency: 'Annually' },
 ];
 
 const documents = [
@@ -151,6 +152,14 @@ export default function MaintenancePage() {
                  </div>
               </CardHeader>
               <CardContent className="flex-grow space-y-4">
+                {task.assetId && (
+                  <Button variant="link" asChild className="p-0 h-auto font-medium">
+                    <Link href={`/assets/${task.assetId}`} className="flex items-center gap-2">
+                      <Building className="h-4 w-4"/>
+                      {task.assetName}
+                    </Link>
+                  </Button>
+                )}
                  <div className="text-sm text-muted-foreground flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   Due: {new Date(task.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
