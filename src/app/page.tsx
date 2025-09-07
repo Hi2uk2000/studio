@@ -1,3 +1,4 @@
+'use client';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { TrendingUp, Wrench, CreditCard } from "lucide-react";
 import EquityChart from '@/components/dashboard/equity-chart';
