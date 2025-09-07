@@ -25,6 +25,7 @@ const navItems = [
   { href: '/expenses', label: 'Expenses', icon: CreditCard },
   { href: '/maintenance', label: 'Maintenance', icon: Wrench },
   { href: '/documents', label: 'Documents', icon: FileText },
+  { href: '/assets', label: 'Assets', icon: Building },
   { href: '/recommendations', label: 'AI Services', icon: Sparkles },
 ];
 
@@ -37,7 +38,7 @@ function SidebarNav() {
       {navItems.map((item) => (
         <Button
           key={item.label}
-          variant={pathname === item.href ? "secondary" : "ghost"}
+          variant={pathname.startsWith(item.href) && item.href !== '/' || pathname === '/' && item.href === '/' ? "secondary" : "ghost"}
           className="w-full justify-start gap-3"
           onClick={() => router.push(item.href)}
         >
