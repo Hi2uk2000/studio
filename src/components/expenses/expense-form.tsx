@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -9,16 +10,19 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { categorizeExpense } from '@/ai/flows/categorize-expenses';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
   description: z.string().min(3, 'Description must be at least 3 characters.'),
   amount: z.coerce.number().positive('Amount must be a positive number.'),
+  includeInSpend: z.boolean().default(true),
 });
 
 type ExpenseFormValues = z.infer<typeof formSchema>;
 
 interface ExpenseFormProps {
-  onAddExpense: (expense: { description: string; amount: number; category: string }) => void;
+  onAddExpense: (expense: { description: string; amount: number; category: string, includeInSpend: boolean }) => void;
 }
 
 export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
@@ -27,7 +31,7 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
 
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { description: '', amount: undefined },
+    defaultValues: { description: '', amount: undefined, includeInSpend: true },
   });
 
   async function onSubmit(data: ExpenseFormValues) {
@@ -80,6 +84,23 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
                 <Input type="number" step="0.01" placeholder="e.g., 45.50" {...field} />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+         <FormField
+          control={form.control}
+          name="includeInSpend"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+              <div className="space-y-0.5">
+                <FormLabel>Include in household spend?</FormLabel>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
             </FormItem>
           )}
         />

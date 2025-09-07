@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { ExpenseForm } from '@/components/expenses/expense-form';
@@ -10,12 +11,13 @@ export interface Expense {
   amount: number;
   category: string;
   date: string;
+  includeInSpend: boolean;
 }
 
 const initialExpenses: Expense[] = [
-    { id: '1', description: 'Monthly Mortgage', amount: 1200, category: 'Mortgage', date: new Date().toISOString() },
-    { id: '2', description: 'Electricity Bill', amount: 75.50, category: 'Utilities', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
-    { id: '3', description: 'Grocery Shopping', amount: 120.30, category: 'Groceries', date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: '1', description: 'Monthly Mortgage', amount: 1200, category: 'Mortgage', date: new Date().toISOString(), includeInSpend: true },
+    { id: '2', description: 'Electricity Bill', amount: 75.50, category: 'Utilities', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), includeInSpend: true },
+    { id: '3', description: 'Grocery Shopping', amount: 120.30, category: 'Groceries', date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), includeInSpend: true },
 ];
 
 export default function ExpensesPage() {
