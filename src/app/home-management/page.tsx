@@ -1,8 +1,9 @@
+
 // src/app/home-management/page.tsx
 'use client';
 
-import { useState } from "react";
-import { Bed, Bath, Ruler, Zap, Hammer, FileText, Banknote, Building, Calendar, BarChart, Bell, Home, CheckCircle, Clock, Edit, Calculator, Info } from "lucide-react"
+import { useState, useMemo } from "react";
+import { Bed, Bath, Ruler, Zap, Hammer, FileText, Banknote, Building, Calendar, BarChart, Bell, Home, CheckCircle, Clock, Edit, Calculator, Info, Percent } from "lucide-react"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -308,67 +309,106 @@ function OverpaymentCalculator({ mortgageBalance, interestRate, purchaseDate, or
     purchaseDate: Date;
     originalTerm: number;
 }) {
-    const [overpayment, setOverpayment] = useState(0);
-    const [result, setResult] = useState<{ yearsSaved: number, interestSaved: number } | null>(null);
+    const [monthlyOverpayment, setMonthlyOverpayment] = useState(0);
+    const [lumpSumOverpayment, setLumpSumOverpayment] = useState(0);
 
-    const calculate = () => {
+    const [result, setResult] = useState<{
+        newEndDate: string,
+        interestSaved: number,
+        overpaymentPercentage: number
+    } | null>(null);
+
+    const { standardMonthlyPayment, remainingTermMonths } = useMemo(() => {
         const monthlyRate = interestRate / 100 / 12;
         const monthsElapsed = (new Date().getFullYear() - purchaseDate.getFullYear()) * 12 + (new Date().getMonth() - purchaseDate.getMonth());
-        const remainingTermMonths = originalTerm * 12 - monthsElapsed;
-
-        // Standard monthly payment
-        const standardPayment = mortgageBalance * monthlyRate / (1 - Math.pow(1 + monthlyRate, -remainingTermMonths));
+        const remainingTerm = originalTerm * 12 - monthsElapsed;
         
-        if (isNaN(standardPayment) || !isFinite(standardPayment)) {
-            setResult(null);
-            return;
-        }
-
-        const totalPayment = standardPayment + overpayment;
-
-        // Time to repay with overpayment
-        const newTermMonths = -Math.log(1 - (mortgageBalance * monthlyRate) / totalPayment) / Math.log(1 + monthlyRate);
-        const yearsSaved = (remainingTermMonths - newTermMonths) / 12;
-
-        // Interest saved
-        const originalTotalInterest = (standardPayment * remainingTermMonths) - mortgageBalance;
-        const newTotalInterest = (totalPayment * newTermMonths) - mortgageBalance;
-        const interestSaved = originalTotalInterest - newTotalInterest;
+        if (remainingTerm <= 0 || mortgageBalance <= 0) return { standardMonthlyPayment: 0, remainingTermMonths: 0 };
         
+        const payment = mortgageBalance * monthlyRate / (1 - Math.pow(1 + monthlyRate, -remainingTerm));
+        return {
+            standardMonthlyPayment: isNaN(payment) || !isFinite(payment) ? 0 : payment,
+            remainingTermMonths: remainingTerm
+        };
+    }, [mortgageBalance, interestRate, purchaseDate, originalTerm]);
+
+    const calculate = () => {
+        if (standardMonthlyPayment === 0) return;
+
+        const monthlyRate = interestRate / 100 / 12;
+        const balanceAfterLumpSum = mortgageBalance - lumpSumOverpayment;
+        const totalMonthlyPayment = standardMonthlyPayment + monthlyOverpayment;
+
+        const newTermMonths = -Math.log(1 - (balanceAfterLumpSum * monthlyRate) / totalMonthlyPayment) / Math.log(1 + monthlyRate);
+        
+        const totalInterestWithoutOverpayment = (standardMonthlyPayment * remainingTermMonths) - mortgageBalance;
+        const totalInterestWithOverpayment = (totalMonthlyPayment * newTermMonths) - balanceAfterLumpSum;
+        const interestSaved = totalInterestWithoutOverpayment - totalInterestWithOverpayment;
+        
+        const newEndDate = new Date();
+        newEndDate.setMonth(newEndDate.getMonth() + Math.ceil(newTermMonths));
+
+        const totalOverpayment = lumpSumOverpayment + (monthlyOverpayment > 0 ? monthlyOverpayment * 12 : 0);
+        const overpaymentPercentage = (totalOverpayment / mortgageBalance) * 100;
+
         setResult({
-            yearsSaved: Math.round(yearsSaved * 10) / 10,
-            interestSaved: Math.round(interestSaved)
+            newEndDate: format(newEndDate, 'MMM yyyy'),
+            interestSaved: Math.round(interestSaved),
+            overpaymentPercentage: Math.round(overpaymentPercentage * 10) / 10
         });
     };
     
     return (
         <div className="space-y-4">
+             {standardMonthlyPayment > 0 && (
+                <div className="p-3 bg-muted rounded-lg text-center">
+                    <p className="text-sm text-muted-foreground">Standard Monthly Payment</p>
+                    <p className="text-lg font-bold">£{standardMonthlyPayment.toFixed(2)}</p>
+                </div>
+            )}
             <div className="space-y-2">
-                <Label htmlFor="overpayment">Monthly Overpayment (£)</Label>
+                <Label htmlFor="monthly-overpayment">Monthly Overpayment (£)</Label>
                 <Input
-                    id="overpayment"
+                    id="monthly-overpayment"
                     type="number"
-                    value={overpayment}
-                    onChange={(e) => setOverpayment(Number(e.target.value))}
+                    value={monthlyOverpayment}
+                    onChange={(e) => setMonthlyOverpayment(Number(e.target.value))}
                     placeholder="e.g., 100"
                 />
             </div>
-            <Button onClick={calculate} className="w-full" disabled={overpayment <= 0}>Calculate</Button>
+            <div className="space-y-2">
+                <Label htmlFor="lump-sum-overpayment">One-off Overpayment (£)</Label>
+                <Input
+                    id="lump-sum-overpayment"
+                    type="number"
+                    value={lumpSumOverpayment}
+                    onChange={(e) => setLumpSumOverpayment(Number(e.target.value))}
+                    placeholder="e.g., 5000"
+                />
+            </div>
+            <Button onClick={calculate} className="w-full" disabled={monthlyOverpayment <= 0 && lumpSumOverpayment <= 0}>Calculate</Button>
 
             {result && (
                 <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
                     <h4 className="font-semibold text-center">Calculation Result</h4>
                      <div className="flex items-center justify-between">
-                        <span className="flex items-center text-muted-foreground text-sm"><Calendar className="mr-2 h-4 w-4" /> Years Saved</span>
-                        <span className="font-medium">{result.yearsSaved.toFixed(1)} years</span>
+                        <span className="flex items-center text-muted-foreground text-sm"><Calendar className="mr-2 h-4 w-4" /> New Mortgage End Date</span>
+                        <span className="font-medium">{result.newEndDate}</span>
                      </div>
                       <Separator />
                      <div className="flex items-center justify-between">
-                        <span className="flex items-center text-muted-foreground text-sm"><Banknote className="mr-2 h-4 w-4" /> Interest Saved</span>
+                        <span className="flex items-center text-muted-foreground text-sm"><Banknote className="mr-2 h-4 w-4" /> Total Interest Saved</span>
                         <span className="font-medium text-green-500">£{result.interestSaved.toLocaleString()}</span>
+                     </div>
+                     <Separator />
+                     <div className="flex items-center justify-between">
+                        <span className="flex items-center text-muted-foreground text-sm"><Percent className="mr-2 h-4 w-4" /> Annual Overpayment</span>
+                        <span className="font-medium">{result.overpaymentPercentage.toFixed(1)}%</span>
                      </div>
                 </div>
             )}
         </div>
     );
 }
+
+    
