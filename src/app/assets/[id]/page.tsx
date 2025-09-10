@@ -7,10 +7,11 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Wrench, Shield, FileText, Upload, Plus, HardHat } from 'lucide-react';
+import { Calendar, Wrench, Shield, FileText, Upload, Plus, HardHat, AlertTriangle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 // Mock data - in a real app this would come from a database
 const initialAssets = [
@@ -25,6 +26,8 @@ const initialAssets = [
     imageHint: 'boiler appliance',
     modelNumber: 'ETEC-24',
     serialNumber: '211020001018651',
+    status: 'Operational',
+    priority: 'Low',
   },
   {
     id: 2,
@@ -37,6 +40,8 @@ const initialAssets = [
     imageHint: 'living room television',
     modelNumber: 'QN55LS03AAFXZA',
     serialNumber: '0H1J3K4L5M6N7P8R',
+    status: 'Operational',
+    priority: 'Low',
   },
     {
     id: 3,
@@ -49,6 +54,8 @@ const initialAssets = [
     imageHint: 'kitchen fridge',
     modelNumber: 'KGN39VWEAG',
     serialNumber: 'BD1234567890',
+    status: 'Requires Attention',
+    priority: 'Medium',
   },
    {
     id: 4,
@@ -61,13 +68,15 @@ const initialAssets = [
     imageHint: 'video doorbell',
     modelNumber: 'Ring4Pro',
     serialNumber: 'GHY6789IKL',
+    status: 'Offline',
+    priority: 'High',
   },
 ];
 
 const serviceHistory = [
-    { id: 1, assetId: 1, date: '2023-11-18', service: 'Annual Service', cost: '£95', contractor: 'ABC Gas Services', status: 'Completed' },
-    { id: 2, assetId: 1, date: '2022-11-15', service: 'Annual Service', cost: '£90', contractor: 'ABC Gas Services', status: 'Completed' },
-    { id: 3, assetId: 2, date: '2023-01-10', service: 'Wall Mount Installation', cost: '£150', contractor: 'Tech Installs Ltd', status: 'Completed' },
+    { id: 1, assetId: 1, date: '2023-11-18', service: 'Annual Service', cost: '£95', contractor: 'ABC Gas Services', status: 'Completed', signedOffBy: 'Jane Doe' },
+    { id: 2, assetId: 1, date: '2022-11-15', service: 'Annual Service', cost: '£90', contractor: 'ABC Gas Services', status: 'Completed', signedOffBy: 'Jane Doe' },
+    { id: 3, assetId: 2, date: '2023-01-10', service: 'Wall Mount Installation', cost: '£150', contractor: 'Tech Installs Ltd', status: 'Completed', signedOffBy: 'Jane Doe' },
 ];
 
 const relatedDocuments = [
@@ -75,6 +84,15 @@ const relatedDocuments = [
     { id: 2, assetId: 1, name: 'Boiler-Warranty.pdf', type: 'Warranty' },
     { id: 3, assetId: 1, name: 'Installation-Certificate.pdf', type: 'Certificate' },
 ];
+
+const getPriorityVariant = (priority: string) => {
+    switch (priority) {
+        case 'High': return 'destructive';
+        case 'Medium': return 'default';
+        case 'Low': return 'secondary';
+        default: return 'secondary';
+    }
+}
 
 export default function AssetDetailPage() {
   const params = useParams();
@@ -128,7 +146,7 @@ export default function AssetDetailPage() {
              <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><HardHat className="h-5 w-5 text-primary" /> Service History</CardTitle>
-                    <CardDescription>A log of all maintenance and repairs for this asset.</CardDescription>
+                    <CardDescription>A log of all maintenance, repairs, and user sign-offs for this asset.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>
@@ -137,6 +155,7 @@ export default function AssetDetailPage() {
                                 <TableHead>Date</TableHead>
                                 <TableHead>Service</TableHead>
                                 <TableHead>Contractor</TableHead>
+                                <TableHead>Signed Off By</TableHead>
                                 <TableHead className="text-right">Cost</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -147,12 +166,13 @@ export default function AssetDetailPage() {
                                         <TableCell>{new Date(item.date).toLocaleDateString('en-GB')}</TableCell>
                                         <TableCell className="font-medium">{item.service}</TableCell>
                                         <TableCell className="text-muted-foreground">{item.contractor}</TableCell>
+                                        <TableCell className="text-muted-foreground">{item.signedOffBy}</TableCell>
                                         <TableCell className="text-right font-mono">{item.cost}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="h-24 text-center">No service history recorded.</TableCell>
+                                    <TableCell colSpan={5} className="h-24 text-center">No service history recorded.</TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
@@ -162,6 +182,33 @@ export default function AssetDetailPage() {
         </div>
 
         <div className="lg:col-span-2 space-y-6">
+            <Card>
+                 <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-primary" />Asset Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Current Status</span>
+                        <span className="font-medium">{asset.status}</span>
+                    </div>
+                     <Separator />
+                     <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Issue Priority</span>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                    <Badge variant={getPriorityVariant(asset.priority)}>{asset.priority}</Badge>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem>Low</DropdownMenuItem>
+                                <DropdownMenuItem>Medium</DropdownMenuItem>
+                                <DropdownMenuItem>High</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </CardContent>
+            </Card>
             <Card>
                 <CardHeader><CardTitle>Asset Details</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
@@ -211,20 +258,26 @@ export default function AssetDetailPage() {
                     </Button>
                 </CardHeader>
                 <CardContent>
-                    <ul className="space-y-3">
-                        {assetDocuments.map(doc => (
-                             <li key={doc.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
-                               <div className="flex items-center gap-3">
-                                 <FileText className="h-5 w-5 text-muted-foreground" />
-                                 <div>
-                                     <p className="font-medium">{doc.name}</p>
-                                     <p className="text-xs text-muted-foreground">{doc.type}</p>
-                                 </div>
-                               </div>
-                               <Button variant="ghost" size="icon">...</Button>
-                            </li>
-                        ))}
-                    </ul>
+                    {assetDocuments.length > 0 ? (
+                        <ul className="space-y-3">
+                            {assetDocuments.map(doc => (
+                                <li key={doc.id} className="flex items-center justify-between p-2 rounded-md bg-muted/50">
+                                <div className="flex items-center gap-3">
+                                    <FileText className="h-5 w-5 text-muted-foreground" />
+                                    <div>
+                                        <p className="font-medium">{doc.name}</p>
+                                        <p className="text-xs text-muted-foreground">{doc.type}</p>
+                                    </div>
+                                </div>
+                                <Button variant="ghost" size="icon">...</Button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                         <div className="text-center text-sm text-muted-foreground py-4">
+                            No documents linked to this asset.
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>

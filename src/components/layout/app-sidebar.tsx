@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, CreditCard, Wrench, FileText, Menu, LogOut, Building } from 'lucide-react';
+import { Home, LayoutDashboard, CreditCard, Wrench, FileText, Menu, LogOut, Building, User as UserIcon, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -68,8 +68,8 @@ function UserProfile() {
                         <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'}/>
                         <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
-                     <div className="flex flex-col items-start">
-                        <span className="text-sm font-medium">{user.displayName}</span>
+                     <div className="flex flex-col items-start text-left">
+                        <span className="text-sm font-medium truncate">{user.displayName}</span>
                         <span className="text-xs text-muted-foreground truncate">{user.email}</span>
                     </div>
                 </Button>
@@ -81,6 +81,11 @@ function UserProfile() {
                         <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
                     </div>
                 </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                 <DropdownMenuItem onClick={() => router.push('/profile')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Profile & Settings</span>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
