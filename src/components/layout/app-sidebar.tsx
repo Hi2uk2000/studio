@@ -26,6 +26,7 @@ const navItems = [
   { href: '/assets', label: 'Assets', icon: Building },
   { href: '/maintenance', label: 'Maintenance', icon: Wrench },
   { href: '/documents', label: 'Documents', icon: FileText },
+  { href: '/profile', label: 'Profile & Settings', icon: Settings },
 ];
 
 function SidebarNav() {
@@ -127,7 +128,20 @@ export function AppSidebar() {
   return (
     <>
       <aside className="fixed left-0 top-0 z-10 hidden h-screen w-64 flex-col border-r bg-card md:flex">
-        <SidebarContentLayout />
+        <div className="flex h-full flex-col">
+            <div className="flex h-16 shrink-0 items-center border-b px-4">
+                <Link href="/" className="flex items-center gap-2 font-bold font-headline">
+                    <Home className="h-7 w-7 text-primary" />
+                    <span className="text-lg">AssetStream</span>
+                </Link>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2">
+                <SidebarNav />
+            </div>
+            <div className="border-t p-2">
+                <UserProfile />
+            </div>
+        </div>
       </aside>
 
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-card px-4 md:hidden">
@@ -143,7 +157,20 @@ export function AppSidebar() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="flex flex-col p-0 w-64">
-            <SidebarContentLayout />
+             <div className="flex h-full flex-col">
+                <div className="flex h-16 shrink-0 items-center border-b px-4">
+                    <Link href="/" className="flex items-center gap-2 font-bold font-headline">
+                        <Home className="h-7 w-7 text-primary" />
+                        <span className="text-lg">AssetStream</span>
+                    </Link>
+                </div>
+                <div className="flex-1 overflow-y-auto p-2">
+                    <SidebarNav />
+                </div>
+                <div className="border-t p-2">
+                    <UserProfile />
+                </div>
+            </div>
           </SheetContent>
         </Sheet>
       </header>
