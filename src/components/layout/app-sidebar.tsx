@@ -10,7 +10,6 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
-import { Separator } from '../ui/separator';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuGroup, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
 
@@ -56,8 +55,8 @@ function UserProfile() {
     if (!user) return null;
 
     return (
-        <div className="p-2">
-            <DropdownMenu>
+        <div className="mt-auto p-2">
+             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="w-full justify-start gap-3">
                         <Avatar className="h-9 w-9">
@@ -111,7 +110,7 @@ export function AppSidebar() {
         <div className="flex-1 overflow-y-auto">
             <SidebarNav />
         </div>
-        <div className="mt-auto border-t">
+        <div className="border-t">
           <UserProfile />
         </div>
     </div>
