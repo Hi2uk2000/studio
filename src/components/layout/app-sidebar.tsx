@@ -33,7 +33,7 @@ function SidebarNav() {
   const router = useRouter();
   
   return (
-    <nav className="flex-1 space-y-2">
+    <nav className="flex flex-col space-y-2">
       {navItems.map((item) => (
         <Button
           key={item.label}
@@ -107,17 +107,17 @@ export function AppSidebar() {
 
   return (
     <>
-      <aside className="fixed left-0 top-0 z-10 hidden h-screen w-64 border-r bg-card md:flex flex-col">
+      <aside className="fixed left-0 top-0 z-10 hidden h-screen w-64 flex-col border-r bg-card md:flex">
         <div className="flex h-16 items-center border-b px-6">
           <Link href="/" className="flex items-center gap-2 font-bold font-headline">
             <Home className="h-7 w-7 text-primary" />
             <span className="text-lg">AssetStream</span>
           </Link>
         </div>
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex flex-1 flex-col overflow-y-auto p-4">
           <SidebarNav />
         </div>
-         <div className="mt-auto p-4 border-t">
+         <div className="mt-auto border-t p-4">
             <UserProfile />
         </div>
       </aside>
@@ -134,15 +134,17 @@ export function AppSidebar() {
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="flex flex-col p-4">
-            <div className="flex h-16 items-center border-b px-2 mb-4">
+          <SheetContent side="right" className="flex flex-col p-0">
+            <div className="flex h-16 shrink-0 items-center border-b px-4">
                 <Link href="/" className="flex items-center gap-2 font-semibold">
                     <Home className="h-7 w-7 text-primary" />
                     <span className="text-lg">AssetStream</span>
                 </Link>
             </div>
-            <SidebarNav />
-            <div className="mt-auto p-2 border-t">
+            <div className="flex-1 overflow-y-auto p-4">
+                <SidebarNav />
+            </div>
+            <div className="mt-auto border-t p-4">
                 <UserProfile />
             </div>
           </SheetContent>
