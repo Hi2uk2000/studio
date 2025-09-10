@@ -54,7 +54,7 @@ function UserProfile() {
     if (!user) return null;
 
     return (
-        <div className="p-2 border-t">
+        <div className="p-2">
            <div className="space-y-1">
                 <Button variant="ghost" className="w-full justify-start gap-3" onClick={() => router.push('/profile')}>
                     <User className="h-5 w-5" />
@@ -103,7 +103,9 @@ export function AppSidebar() {
         <div className="flex-1 overflow-y-auto">
             <SidebarNav />
         </div>
-        <UserProfile />
+        <div className="border-t">
+          <UserProfile />
+        </div>
     </div>
   );
 
