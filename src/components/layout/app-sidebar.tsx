@@ -3,20 +3,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, CreditCard, Wrench, FileText, Menu, LogOut, Building, Settings, HelpCircle, User } from 'lucide-react';
+import { Home, LayoutDashboard, CreditCard, Wrench, FileText, Menu, LogOut, Building, User, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
 import { Separator } from '../ui/separator';
 
@@ -117,7 +109,7 @@ export function AppSidebar() {
 
   return (
     <>
-      <aside className="fixed left-0 top-0 z-10 hidden h-screen w-64 flex-col border-r bg-card md:flex">
+      <aside className="fixed left-0 top-1/2 -translate-y-1/2 z-10 hidden h-[95vh] w-64 flex-col rounded-r-lg border-y border-r bg-card md:flex">
         <SidebarContentLayout />
       </aside>
 
