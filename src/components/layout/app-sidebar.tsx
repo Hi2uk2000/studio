@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, CreditCard, Wrench, FileText, Menu, LogOut, Building, Settings } from 'lucide-react';
+import { Home, LayoutDashboard, CreditCard, Wrench, FileText, Menu, LogOut, Building, Settings, HelpCircle, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
+import { Separator } from '../ui/separator';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -61,49 +62,42 @@ function UserProfile() {
     if (!user) return null;
 
     return (
-        <div className="space-y-1 p-2 border-t">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-12 w-full justify-start gap-2 px-3">
-                        <Avatar className="h-9 w-9">
-                            <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'}/>
-                            <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col items-start text-left -space-y-1">
-                            <span className="text-base font-medium truncate">{user.displayName}</span>
-                            <span className="text-xs text-muted-foreground truncate">{user.email}</span>
-                        </div>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                        <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                        </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => router.push('/profile')}>
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Profile & Settings</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Log out</span>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+        <div className="p-2 border-t">
+           <div className="space-y-1">
+                <Button variant="ghost" className="w-full justify-start gap-3" onClick={() => router.push('/profile')}>
+                    <User className="h-5 w-5" />
+                    <span className="font-medium">Profile & Settings</span>
+                </Button>
+                 <Button variant="ghost" className="w-full justify-start gap-3">
+                    <HelpCircle className="h-5 w-5" />
+                    <span className="font-medium">Help & Support</span>
+                </Button>
+                  <Button variant="ghost" className="w-full justify-start gap-3" onClick={handleSignOut}>
+                    <LogOut className="h-5 w-5" />
+                    <span className="font-medium">Logout</span>
+                </Button>
+           </div>
+           <Separator className="my-2" />
+            <div className="flex items-center gap-3 p-2">
+                 <Avatar className="h-9 w-9">
+                    <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'}/>
+                    <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col items-start text-left -space-y-1 overflow-hidden">
+                    <span className="text-sm font-medium truncate">{user.displayName}</span>
+                    <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+                </div>
+            </div>
         </div>
     );
 }
 
-export function AppSidebar({ children }: { children: React.ReactNode }) {
+export function AppSidebar() {
   const pathname = usePathname();
 
   const noSidebarRoutes = ['/login', '/register', '/register/home-setup'];
   if (noSidebarRoutes.includes(pathname)) {
-    return <>{children}</>;
+    return null;
   }
   
   const SidebarContentLayout = () => (
@@ -122,7 +116,7 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col">
+    <>
       <aside className="fixed left-0 top-0 z-10 hidden h-screen w-64 flex-col border-r bg-card md:flex">
         <SidebarContentLayout />
       </aside>
@@ -144,9 +138,6 @@ export function AppSidebar({ children }: { children: React.ReactNode }) {
           </SheetContent>
         </Sheet>
       </header>
-       <main className="flex-1 md:pl-64">
-          {children}
-        </main>
-    </div>
+    </>
   );
 }
