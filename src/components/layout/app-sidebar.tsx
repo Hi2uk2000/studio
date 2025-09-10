@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, CreditCard, Wrench, FileText, Menu, LogOut, Building, User as UserIcon, Settings } from 'lucide-react';
+import { Home, LayoutDashboard, CreditCard, Wrench, FileText, Menu, LogOut, Building, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -33,7 +33,7 @@ function SidebarNav() {
   const router = useRouter();
   
   return (
-    <nav className="flex flex-col space-y-2">
+    <nav className="flex flex-col space-y-1">
       {navItems.map((item) => (
         <Button
           key={item.label}
@@ -61,38 +61,40 @@ function UserProfile() {
     if (!user) return null;
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-full justify-start gap-2 px-3">
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'}/>
-                        <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                    </Avatar>
-                     <div className="flex flex-col items-start text-left">
-                        <span className="text-sm font-medium truncate">{user.displayName}</span>
-                        <span className="text-xs text-muted-foreground truncate">{user.email}</span>
-                    </div>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                        <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                    </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                 <DropdownMenuItem onClick={() => router.push('/profile')}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Profile & Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="space-y-1">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-12 w-full justify-start gap-2 px-3">
+                        <Avatar className="h-9 w-9">
+                            <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'}/>
+                            <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col items-start text-left -space-y-1">
+                            <span className="text-base font-medium truncate">{user.displayName}</span>
+                            <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+                        </div>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                        </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => router.push('/profile')}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Profile & Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Log out</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
     );
 }
 
@@ -104,22 +106,28 @@ export function AppSidebar() {
   if (noSidebarRoutes.includes(pathname) || loading) {
     return null;
   }
+  
+  const SidebarContentLayout = () => (
+    <>
+      <div className="flex h-16 shrink-0 items-center border-b px-4">
+        <Link href="/" className="flex items-center gap-2 font-bold font-headline">
+            <Home className="h-7 w-7 text-primary" />
+            <span className="text-lg">AssetStream</span>
+        </Link>
+      </div>
+      <div className="flex flex-1 flex-col overflow-y-auto p-2">
+        <SidebarNav />
+      </div>
+      <div className="border-t p-2">
+        <UserProfile />
+      </div>
+    </>
+  );
 
   return (
     <>
       <aside className="fixed left-0 top-0 z-10 hidden h-screen w-64 flex-col border-r bg-card md:flex">
-        <div className="flex h-16 items-center border-b px-6">
-          <Link href="/" className="flex items-center gap-2 font-bold font-headline">
-            <Home className="h-7 w-7 text-primary" />
-            <span className="text-lg">AssetStream</span>
-          </Link>
-        </div>
-        <div className="flex flex-1 flex-col overflow-y-auto p-4">
-          <SidebarNav />
-        </div>
-         <div className="border-t p-4">
-            <UserProfile />
-        </div>
+        <SidebarContentLayout />
       </aside>
 
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-card px-4 md:hidden">
@@ -134,19 +142,8 @@ export function AppSidebar() {
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="flex flex-col p-0">
-            <div className="flex h-16 shrink-0 items-center border-b px-4">
-                <Link href="/" className="flex items-center gap-2 font-semibold">
-                    <Home className="h-7 w-7 text-primary" />
-                    <span className="text-lg">AssetStream</span>
-                </Link>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4">
-                <SidebarNav />
-            </div>
-            <div className="border-t p-4">
-                <UserProfile />
-            </div>
+          <SheetContent side="left" className="flex flex-col p-0 w-64">
+            <SidebarContentLayout />
           </SheetContent>
         </Sheet>
       </header>
