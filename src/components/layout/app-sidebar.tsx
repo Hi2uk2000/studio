@@ -117,7 +117,7 @@ export function AppSidebar() {
         <div className="flex flex-1 flex-col overflow-y-auto p-4">
           <SidebarNav />
         </div>
-         <div className="mt-auto border-t p-4">
+         <div className="border-t p-4">
             <UserProfile />
         </div>
       </aside>
@@ -144,7 +144,7 @@ export function AppSidebar() {
             <div className="flex-1 overflow-y-auto p-4">
                 <SidebarNav />
             </div>
-            <div className="mt-auto border-t p-4">
+            <div className="border-t p-4">
                 <UserProfile />
             </div>
           </SheetContent>
