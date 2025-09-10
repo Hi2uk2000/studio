@@ -11,6 +11,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 import { Separator } from '../ui/separator';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuGroup, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -55,31 +57,37 @@ function UserProfile() {
 
     return (
         <div className="p-2">
-           <div className="space-y-1">
-                <Button variant="ghost" className="w-full justify-start gap-3" onClick={() => router.push('/profile')}>
-                    <User className="h-5 w-5" />
-                    <span className="font-medium">Profile & Settings</span>
-                </Button>
-                 <Button variant="ghost" className="w-full justify-start gap-3">
-                    <HelpCircle className="h-5 w-5" />
-                    <span className="font-medium">Help & Support</span>
-                </Button>
-                  <Button variant="ghost" className="w-full justify-start gap-3" onClick={handleSignOut}>
-                    <LogOut className="h-5 w-5" />
-                    <span className="font-medium">Logout</span>
-                </Button>
-           </div>
-           <Separator className="my-2" />
-            <div className="flex items-center gap-3 p-2">
-                 <Avatar className="h-9 w-9">
-                    <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'}/>
-                    <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col items-start text-left -space-y-1 overflow-hidden">
-                    <span className="text-sm font-medium truncate">{user.displayName}</span>
-                    <span className="text-xs text-muted-foreground truncate">{user.email}</span>
-                </div>
-            </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="w-full justify-start gap-3">
+                        <Avatar className="h-9 w-9">
+                            <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'}/>
+                            <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col items-start text-left -space-y-1 overflow-hidden">
+                            <span className="text-sm font-medium truncate">{user.displayName}</span>
+                            <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+                        </div>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 mb-2" side="top" align="start">
+                     <DropdownMenuGroup>
+                        <DropdownMenuItem onClick={() => router.push('/profile')}>
+                            <User className="mr-2 h-4 w-4" />
+                            <span>Profile & Settings</span>
+                        </DropdownMenuItem>
+                         <DropdownMenuItem>
+                            <HelpCircle className="mr-2 h-4 w-4" />
+                            <span>Help & Support</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Logout</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     );
 }
