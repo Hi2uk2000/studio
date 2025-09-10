@@ -1,4 +1,3 @@
-
 // src/app/maintenance/page.tsx
 'use client';
 import { useState } from 'react';
@@ -22,8 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { Calendar as CalendarPicker } from '@/components/ui/calendar';
+import { format, getDaysInMonth, startOfYear, addMonths, getDate, getMonth, getYear } from 'date-fns';
 import Link from 'next/link';
 
 
@@ -65,6 +63,16 @@ const getPriorityVariant = (priority: string) => {
         default: return 'secondary';
     }
 }
+
+const getPriorityClass = (priority: string) => {
+    switch (priority) {
+        case 'High': return 'bg-destructive';
+        case 'Medium': return 'bg-yellow-500';
+        case 'Low': return 'bg-blue-500';
+        default: return 'bg-gray-500';
+    }
+}
+
 
 export default function MaintenancePage() {
   const [tasks, setTasks] = useState(initialTasks);
@@ -209,8 +217,8 @@ export default function MaintenancePage() {
 
       {view === 'calendar' && (
          <Card>
-            <CardContent className="p-2">
-                 <MaintenanceCalendar tasks={tasks} />
+            <CardContent className="p-4">
+                 <YearlyTimeline tasks={tasks} />
             </CardContent>
         </Card>
       )}
@@ -232,7 +240,8 @@ function TaskFormDialog({ task, onSave, onClose }: {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ title, dueDate: dueDate?.toISOString().split('T')[0], priority, frequency, assetName: 'General Property', assetId: null });
+    if (!dueDate) return;
+    onSave({ title, dueDate: format(dueDate, 'yyyy-MM-dd'), priority, frequency, assetName: 'General Property', assetId: null });
   };
   
   return (
@@ -263,7 +272,7 @@ function TaskFormDialog({ task, onSave, onClose }: {
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
-                        <CalendarPicker
+                        <Calendar
                             mode="single"
                             selected={dueDate}
                             onSelect={setDueDate}
@@ -308,57 +317,98 @@ function TaskFormDialog({ task, onSave, onClose }: {
   );
 }
 
-function MaintenanceCalendar({ tasks }: { tasks: typeof initialTasks}) {
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-    
-    const tasksByDate = tasks.reduce((acc, task) => {
-        const dateKey = format(new Date(task.dueDate), 'yyyy-MM-dd');
-        if (!acc[dateKey]) {
-            acc[dateKey] = [];
+
+function YearlyTimeline({ tasks }: { tasks: typeof initialTasks}) {
+    const currentYear = new Date().getFullYear();
+    const months = Array.from({ length: 12 }, (_, i) => new Date(currentYear, i));
+    const totalDays = 365; // Simple approximation for layout
+
+    const tasksWithPositions = tasks
+        .filter(task => getYear(new Date(task.dueDate)) === currentYear)
+        .map((task, index) => {
+            const dueDate = new Date(task.dueDate);
+            const dayOfYear = (Date.UTC(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate()) - Date.UTC(dueDate.getFullYear(), 0, 0)) / 24 / 60 / 60 / 1000;
+            const left = (dayOfYear / totalDays) * 100;
+            return { ...task, left, rowIndex: index }; // Simple row index for now to avoid overlap
+        });
+
+    // Group tasks by row to prevent visual overlap
+    const rows: (typeof tasksWithPositions)[] = [];
+    tasksWithPositions.forEach(task => {
+        let placed = false;
+        for (const row of rows) {
+            const lastTaskInRow = row[row.length - 1];
+            if (lastTaskInRow && task.left > lastTaskInRow.left + 5) { // 5% buffer
+                row.push(task);
+                placed = true;
+                break;
+            }
         }
-        acc[dateKey].push(task);
-        return acc;
-    }, {} as Record<string, typeof initialTasks>);
+        if (!placed) {
+            rows.push([task]);
+        }
+    });
 
 
     return (
-        <div className="grid md:grid-cols-2 gap-6">
-            <CalendarPicker
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                className="rounded-md border"
-                modifiers={{
-                    hasTask: Object.keys(tasksByDate).map(dateStr => new Date(dateStr))
-                }}
-                modifiersStyles={{
-                    hasTask: { 
-                        fontWeight: 'bold', 
-                        // The below doesn't work well with dark mode, but illustrates the point
-                        // textDecoration: 'underline',
-                        // textDecorationColor: 'hsl(var(--primary))'
-                     }
-                }}
-            />
-            <div className="space-y-4">
-                 <h3 className="text-lg font-semibold tracking-tight">
-                    Tasks for {selectedDate ? format(selectedDate, 'do MMMM yyyy') : 'selected date'}
-                 </h3>
-                 <div className="space-y-3 h-[300px] overflow-y-auto pr-2">
-                     {(selectedDate && tasksByDate[format(selectedDate, 'yyyy-MM-dd')]) ? (
-                         tasksByDate[format(selectedDate, 'yyyy-MM-dd')].map(task => (
-                             <div key={task.id} className="p-3 rounded-md border bg-muted/50">
-                                 <p className="font-semibold">{task.title}</p>
-                                 <p className="text-sm text-muted-foreground">{task.assetName}</p>
-                                  <Badge variant={getPriorityVariant(task.priority)} className="mt-1">{task.priority}</Badge>
-                             </div>
-                         ))
-                     ) : (
-                         <div className="flex items-center justify-center h-full">
-                            <p className="text-muted-foreground">No tasks scheduled for this day.</p>
-                         </div>
-                     )}
-                 </div>
+        <div className="relative w-full overflow-x-auto">
+            <div className="min-w-[1200px] space-y-2 py-4">
+                {/* Month Headers */}
+                <div className="relative grid grid-cols-12 h-10 border-b-2 border-primary/50">
+                    {months.map(month => (
+                        <div key={format(month, 'MMM')} className="text-center font-semibold text-primary">
+                            {format(month, 'MMMM')}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Task Area */}
+                <div className="relative h-[400px] w-full">
+                    {/* Day markers */}
+                     <div className="absolute top-0 left-0 grid h-full w-full grid-cols-12">
+                        {months.map((month, monthIndex) => {
+                            const daysInMonth = getDaysInMonth(month);
+                            return (
+                                <div key={monthIndex} className="grid grid-cols-31 border-r">
+                                    {/* This is a visual approximation. A real gantt would be more complex */}
+                                    {Array.from({length: daysInMonth}).map((_, dayIndex) => (
+                                        <div key={dayIndex} className={cn("h-full border-r border-border/50", (dayIndex % 2 === 0) && "opacity-50" )} style={{width: `${100/daysInMonth}%`}}/>
+                                    ))}
+                                </div>
+                            );
+                        })}
+                    </div>
+                    {/* Task bars */}
+                    <div className="relative mt-4 space-y-2">
+                        {rows.map((rowTasks, rowIndex) => (
+                            <div key={rowIndex} className="relative h-8">
+                                {rowTasks.map(task => (
+                                    <Popover key={task.id}>
+                                        <PopoverTrigger asChild>
+                                            <div
+                                                className={cn(
+                                                    "absolute h-full cursor-pointer rounded-md px-2 flex items-center text-white text-xs whitespace-nowrap overflow-hidden",
+                                                    getPriorityClass(task.priority)
+                                                )}
+                                                style={{ left: `${task.left}%`, width: '10%' }} // Fixed width for visibility
+                                            >
+                                                <p className="truncate">{task.title}</p>
+                                            </div>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            <div className="space-y-2">
+                                                <p className="font-bold">{task.title}</p>
+                                                <p className="text-sm">Due: {format(new Date(task.dueDate), 'd MMM yyyy')}</p>
+                                                <p className="text-sm">Asset: {task.assetName}</p>
+                                                <Badge variant={getPriorityVariant(task.priority)}>{task.priority}</Badge>
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );
