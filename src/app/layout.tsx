@@ -34,12 +34,9 @@ export default function RootLayout({
         >
           <AuthProvider>
             <AuthLayout>
-              <div className="relative flex min-h-screen w-full flex-col">
-                <AppSidebar />
-                <main className="flex-1 md:pl-64">
-                  {children}
-                </main>
-              </div>
+              <AppSidebar>
+                {children}
+              </AppSidebar>
               <Toaster />
             </AuthLayout>
           </AuthProvider>

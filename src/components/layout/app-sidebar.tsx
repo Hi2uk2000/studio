@@ -98,12 +98,12 @@ function UserProfile() {
     );
 }
 
-export function AppSidebar() {
+export function AppSidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const noSidebarRoutes = ['/login', '/register', '/register/home-setup'];
   if (noSidebarRoutes.includes(pathname)) {
-    return null;
+    return <>{children}</>;
   }
   
   const SidebarContentLayout = () => (
@@ -122,7 +122,7 @@ export function AppSidebar() {
   );
 
   return (
-    <>
+    <div className="relative flex min-h-screen w-full flex-col">
       <aside className="fixed left-0 top-0 z-10 hidden h-screen w-64 flex-col border-r bg-card md:flex">
         <SidebarContentLayout />
       </aside>
@@ -144,6 +144,9 @@ export function AppSidebar() {
           </SheetContent>
         </Sheet>
       </header>
-    </>
+       <main className="flex-1 md:pl-64">
+          {children}
+        </main>
+    </div>
   );
 }
