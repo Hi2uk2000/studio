@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Wrench, Calendar, Plus, FileText, Paperclip, MoreVertical, Edit, Trash2, Bot, Building } from "lucide-react";
+import { Wrench, Calendar, Plus, FileText, Paperclip, MoreVertical, Edit, Trash2, Bot, Building, CalendarDays, List } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
@@ -48,6 +48,7 @@ const documents = [
 const getStatus = (dueDate: string) => {
     const due = new Date(dueDate);
     const today = new Date();
+    today.setHours(0,0,0,0);
     const oneWeekFromNow = new Date();
     oneWeekFromNow.setDate(today.getDate() + 7);
 
@@ -69,6 +70,7 @@ export default function MaintenancePage() {
   const [tasks, setTasks] = useState(initialTasks);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<any | null>(null);
+  const [view, setView] = useState<'planner' | 'calendar'>('planner');
 
   const handleSave = (formData: any) => {
     if (editingTask) {
@@ -92,16 +94,28 @@ export default function MaintenancePage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Maintenance Planner</h1>
-         <div className="flex gap-2">
-            <Button variant="outline">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">Maintenance Planner</h1>
+            <p className="text-muted-foreground">Keep track of all your property maintenance tasks.</p>
+        </div>
+         <div className="flex items-center gap-2">
+            <Button variant={view === 'planner' ? 'secondary' : 'outline'} size="sm" onClick={() => setView('planner')}>
+                <List className="mr-2 h-4 w-4" />
+                Planner
+            </Button>
+            <Button variant={view === 'calendar' ? 'secondary' : 'outline'} size="sm" onClick={() => setView('calendar')}>
+                <CalendarDays className="mr-2 h-4 w-4" />
+                Calendar
+            </Button>
+            <Separator orientation="vertical" className="h-8 mx-2" />
+            <Button variant="outline" size="sm">
                 <Bot className="mr-2 h-4 w-4" />
                 Get AI Schedule
             </Button>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button onClick={() => setEditingTask(null)}>
+                    <Button onClick={() => setEditingTask(null)} size="sm">
                         <Plus className="mr-2 h-4 w-4" />
                         Add Task
                     </Button>
@@ -114,81 +128,93 @@ export default function MaintenancePage() {
             </Dialog>
          </div>
       </div>
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {tasks.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()).map(task => {
-          const linkedDocuments = documents.filter(doc => doc.maintenanceId === task.id);
-          const status = getStatus(task.dueDate);
-          return (
-            <Card key={task.id} className="flex flex-col">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <CardTitle className="flex items-start gap-2">
-                    <Wrench className="h-5 w-5 text-primary mt-1" />
-                    <div className="flex flex-col">
-                        <span>{task.title}</span>
-                         <span className="text-sm font-normal text-muted-foreground">{task.frequency}</span>
+
+      {view === 'planner' && (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {tasks.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()).map(task => {
+            const linkedDocuments = documents.filter(doc => doc.maintenanceId === task.id);
+            const status = getStatus(task.dueDate);
+            return (
+                <Card key={task.id} className="flex flex-col">
+                <CardHeader>
+                    <div className="flex justify-between items-start">
+                    <CardTitle className="flex items-start gap-2">
+                        <Wrench className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                        <div className="flex flex-col">
+                            <span>{task.title}</span>
+                            <span className="text-sm font-normal text-muted-foreground">{task.frequency}</span>
+                        </div>
+                    </CardTitle>
+                    <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="-mt-2 -mr-2">
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => { setEditingTask(task); setIsDialogOpen(true); }}>
+                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="text-destructive" onSelect={() => handleDelete(task.id)}>
+                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
-                  </CardTitle>
-                   <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onSelect={() => { setEditingTask(task); setIsDialogOpen(true); }}>
-                                <Edit className="mr-2 h-4 w-4" /> Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive" onSelect={() => handleDelete(task.id)}>
-                                <Trash2 className="mr-2 h-4 w-4" /> Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-                 <div className="flex items-center gap-4 pt-2">
-                    <Badge variant={getPriorityVariant(task.priority)}>{task.priority} Priority</Badge>
-                     <Badge variant={status === 'Overdue' ? 'destructive' : 'outline'}>{status}</Badge>
-                 </div>
-              </CardHeader>
-              <CardContent className="flex-grow space-y-4">
-                {task.assetId && (
-                  <Button variant="link" asChild className="p-0 h-auto font-medium">
-                    <Link href={`/assets/${task.assetId}`} className="flex items-center gap-2">
-                      <Building className="h-4 w-4"/>
-                      {task.assetName}
-                    </Link>
-                  </Button>
-                )}
-                 <div className="text-sm text-muted-foreground flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Due: {new Date(task.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                </div>
-                {linkedDocuments.length > 0 && (
-                  <div>
-                    <Separator className="my-2" />
-                    <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
-                      <Paperclip className="h-4 w-4" />
-                      Linked Documents
-                    </h4>
-                    <ul className="space-y-2">
-                      {linkedDocuments.map(doc => (
-                        <li key={doc.id} className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <FileText className="h-4 w-4" />
-                          <span>{doc.name}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="w-full">Mark as Complete</Button>
-              </CardFooter>
-            </Card>
-          )
-        })}
-      </div>
+                    <div className="flex items-center gap-4 pt-2">
+                        <Badge variant={getPriorityVariant(task.priority)}>{task.priority} Priority</Badge>
+                        <Badge variant={status === 'Overdue' ? 'destructive' : 'outline'}>{status}</Badge>
+                    </div>
+                </CardHeader>
+                <CardContent className="flex-grow space-y-4">
+                    {task.assetId && (
+                    <Button variant="link" asChild className="p-0 h-auto font-medium">
+                        <Link href={`/assets/${task.assetId}`} className="flex items-center gap-2">
+                        <Building className="h-4 w-4"/>
+                        {task.assetName}
+                        </Link>
+                    </Button>
+                    )}
+                    <div className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Due: {new Date(task.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </div>
+                    {linkedDocuments.length > 0 && (
+                    <div>
+                        <Separator className="my-2" />
+                        <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
+                        <Paperclip className="h-4 w-4" />
+                        Linked Documents
+                        </h4>
+                        <ul className="space-y-2">
+                        {linkedDocuments.map(doc => (
+                            <li key={doc.id} className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <FileText className="h-4 w-4" />
+                            <span>{doc.name}</span>
+                            </li>
+                        ))}
+                        </ul>
+                    </div>
+                    )}
+                </CardContent>
+                <CardFooter>
+                    <Button variant="outline" className="w-full">Mark as Complete</Button>
+                </CardFooter>
+                </Card>
+            )
+            })}
+        </div>
+      )}
+
+      {view === 'calendar' && (
+         <Card>
+            <CardContent className="p-2">
+                 <MaintenanceCalendar tasks={tasks} />
+            </CardContent>
+        </Card>
+      )}
+
     </div>
   );
 }
@@ -206,7 +232,7 @@ function TaskFormDialog({ task, onSave, onClose }: {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ title, dueDate: dueDate?.toISOString().split('T')[0], priority, frequency });
+    onSave({ title, dueDate: dueDate?.toISOString().split('T')[0], priority, frequency, assetName: 'General Property', assetId: null });
   };
   
   return (
@@ -282,6 +308,58 @@ function TaskFormDialog({ task, onSave, onClose }: {
   );
 }
 
+function MaintenanceCalendar({ tasks }: { tasks: typeof initialTasks}) {
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
     
+    const tasksByDate = tasks.reduce((acc, task) => {
+        const dateKey = format(new Date(task.dueDate), 'yyyy-MM-dd');
+        if (!acc[dateKey]) {
+            acc[dateKey] = [];
+        }
+        acc[dateKey].push(task);
+        return acc;
+    }, {} as Record<string, typeof initialTasks>);
 
-    
+
+    return (
+        <div className="grid md:grid-cols-2 gap-6">
+            <CalendarPicker
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                className="rounded-md border"
+                modifiers={{
+                    hasTask: Object.keys(tasksByDate).map(dateStr => new Date(dateStr))
+                }}
+                modifiersStyles={{
+                    hasTask: { 
+                        fontWeight: 'bold', 
+                        // The below doesn't work well with dark mode, but illustrates the point
+                        // textDecoration: 'underline',
+                        // textDecorationColor: 'hsl(var(--primary))'
+                     }
+                }}
+            />
+            <div className="space-y-4">
+                 <h3 className="text-lg font-semibold tracking-tight">
+                    Tasks for {selectedDate ? format(selectedDate, 'do MMMM yyyy') : 'selected date'}
+                 </h3>
+                 <div className="space-y-3 h-[300px] overflow-y-auto pr-2">
+                     {(selectedDate && tasksByDate[format(selectedDate, 'yyyy-MM-dd')]) ? (
+                         tasksByDate[format(selectedDate, 'yyyy-MM-dd')].map(task => (
+                             <div key={task.id} className="p-3 rounded-md border bg-muted/50">
+                                 <p className="font-semibold">{task.title}</p>
+                                 <p className="text-sm text-muted-foreground">{task.assetName}</p>
+                                  <Badge variant={getPriorityVariant(task.priority)} className="mt-1">{task.priority}</Badge>
+                             </div>
+                         ))
+                     ) : (
+                         <div className="flex items-center justify-center h-full">
+                            <p className="text-muted-foreground">No tasks scheduled for this day.</p>
+                         </div>
+                     )}
+                 </div>
+            </div>
+        </div>
+    );
+}

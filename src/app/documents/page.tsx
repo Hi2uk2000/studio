@@ -26,12 +26,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const initialDocuments = [
   { id: 1, name: 'Home-Insurance-Policy.pdf', type: 'Insurance', size: '2.3 MB', uploaded: '2024-01-15', maintenanceId: null },
   { id: 2, name: 'Property-Deed.pdf', type: 'Legal', size: '1.1 MB', uploaded: '2024-01-10', maintenanceId: null },
-  { id: 3, name: 'Boiler-Manual.pdf', type: 'Boilers', size: '5.8 MB', uploaded: '2024-02-20', maintenanceId: 1 },
-  { id: 4, name: 'Fridge-Warranty.pdf', type: 'DIY', size: '0.8 MB', uploaded: '2024-03-05', maintenanceId: null },
-  { id: 5, name: 'Electrical-Safety-Cert.pdf', type: 'Fire Equipment', size: '0.5 MB', uploaded: '2024-05-18', maintenanceId: null },
-  { id: 6, name: 'Gutter-cleaning-quote.pdf', type: 'Structural', size: '0.2 MB', uploaded: '2024-10-28', maintenanceId: 2 },
-  { id: 7, name: 'AC-Service-Report.pdf', type: 'Air conditioning', size: '0.4 MB', uploaded: '2024-11-01', maintenanceId: null },
-  { id: 8, name: 'Window-Replacement-Contract.pdf', type: 'Doors and windows', size: '0.9 MB', uploaded: '2024-11-05', maintenanceId: null },
+  { id: 3, name: 'Boiler-Manual.pdf', type: 'Manual', size: '5.8 MB', uploaded: '2024-02-20', maintenanceId: 1 },
+  { id: 4, name: 'Fridge-Warranty.pdf', type: 'Warranty', size: '0.8 MB', uploaded: '2024-03-05', maintenanceId: null },
+  { id: 5, name: 'Electrical-Safety-Cert.pdf', type: 'Certificate', size: '0.5 MB', uploaded: '2024-05-18', maintenanceId: null },
+  { id: 6, name: 'Gutter-cleaning-quote.pdf', type: 'Quote', size: '0.2 MB', uploaded: '2024-10-28', maintenanceId: 2 },
+  { id: 7, name: 'AC-Service-Report.pdf', type: 'Report', size: '0.4 MB', uploaded: '2024-11-01', maintenanceId: null },
+  { id: 8, name: 'Window-Replacement-Contract.pdf', type: 'Contract', size: '0.9 MB', uploaded: '2024-11-05', maintenanceId: null },
 ];
 
 const maintenanceTasks = [
@@ -44,13 +44,7 @@ const maintenanceTasks = [
 ];
 
 const standardGroups = [
-  'Boilers',
-  'Fire Equipment',
-  'Access Equipment',
-  'Air conditioning',
-  'Structural',
-  'Doors and windows',
-  'DIY',
+  'Insurance', 'Legal', 'Manual', 'Warranty', 'Certificate', 'Quote', 'Report', 'Contract'
 ];
 
 interface Document {
