@@ -3,15 +3,33 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, CreditCard, Wrench, FileText, Menu, LogOut, Building, User, HelpCircle } from 'lucide-react';
+import {
+  Home,
+  LayoutDashboard,
+  CreditCard,
+  Wrench,
+  FileText,
+  Menu,
+  CircleUserRound,
+  HelpCircle,
+  LogOut,
+  Building,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/hooks/use-auth';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuGroup, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-
+import { Separator } from '../ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -25,19 +43,21 @@ const navItems = [
 function SidebarNav() {
   const pathname = usePathname();
   const router = useRouter();
-  
+
   return (
-    <nav className="flex flex-col space-y-1 p-2">
+    <nav className="grid items-start gap-1 px-2 text-sm font-medium">
       {navItems.map((item) => (
-        <Button
+        <Link
           key={item.label}
-          variant={pathname.startsWith(item.href) && item.href !== '/' || pathname === '/' && item.href === '/' ? "secondary" : "ghost"}
-          className="w-full justify-start gap-3"
-          onClick={() => router.push(item.href)}
+          href={item.href}
+          className={cn(
+            'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+            (pathname.startsWith(item.href) && item.href !== '/') || (pathname === '/' && item.href === '/') ? 'bg-muted text-primary' : ''
+          )}
         >
-          <item.icon className="h-5 w-5" />
-          <span className="font-medium">{item.label}</span>
-        </Button>
+          <item.icon className="h-4 w-4" />
+          {item.label}
+        </Link>
       ))}
     </nav>
   );
@@ -51,45 +71,66 @@ function UserProfile() {
         await signOut();
         router.push('/login');
     };
-    
+
     if (!user) return null;
 
     return (
         <div className="mt-auto p-2">
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="w-full justify-start gap-3">
+                    <Button variant="ghost" className="flex items-center gap-3 w-full justify-start p-2 h-auto">
                         <Avatar className="h-9 w-9">
-                            <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'}/>
-                            <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                            <AvatarImage src={user.photoURL ?? ''} />
+                            <AvatarFallback>{user.displayName?.charAt(0) ?? 'U'}</AvatarFallback>
                         </Avatar>
-                        <div className="flex flex-col items-start text-left -space-y-1 overflow-hidden">
-                            <span className="text-sm font-medium truncate">{user.displayName}</span>
-                            <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+                        <div className="text-left">
+                            <p className="text-sm font-medium">{user.displayName}</p>
+                            <p className="text-xs text-muted-foreground">{user.email}</p>
                         </div>
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 mb-2" side="top" align="start">
-                     <DropdownMenuGroup>
-                        <DropdownMenuItem onClick={() => router.push('/profile')}>
-                            <User className="mr-2 h-4 w-4" />
-                            <span>Profile & Settings</span>
-                        </DropdownMenuItem>
-                         <DropdownMenuItem>
-                            <HelpCircle className="mr-2 h-4 w-4" />
-                            <span>Help & Support</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuGroup>
+                <DropdownMenuContent className="w-56 mb-2" align="end" forceMount>
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => router.push('/profile')}>
+                        <CircleUserRound className="mr-2 h-4 w-4" />
+                        <span>Profile & Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                        <HelpCircle className="mr-2 h-4 w-4" />
+                        <span>Help & Support</span>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
                         <LogOut className="mr-2 h-4 w-4" />
-                        <span>Logout</span>
+                        <span>Log out</span>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
-    );
+    )
 }
+
+
+function SidebarContentLayout() {
+  return (
+    <div className="flex h-full flex-col gap-2">
+      <div className="flex h-16 shrink-0 items-center border-b px-4">
+        <Link href="/" className="flex items-center gap-2 font-bold font-headline">
+          <Home className="h-7 w-7 text-primary" />
+          <span className="text-lg">AssetStream</span>
+        </Link>
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        <SidebarNav />
+      </div>
+      <div className="mt-auto">
+        <UserProfile />
+      </div>
+    </div>
+  );
+}
+
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -98,23 +139,6 @@ export function AppSidebar() {
   if (noSidebarRoutes.includes(pathname)) {
     return null;
   }
-  
-  const SidebarContentLayout = () => (
-     <div className="flex h-full flex-col">
-        <div className="flex h-16 shrink-0 items-center border-b px-4">
-            <Link href="/" className="flex items-center gap-2 font-bold font-headline">
-                <Home className="h-7 w-7 text-primary" />
-                <span className="text-lg">AssetStream</span>
-            </Link>
-        </div>
-        <div className="flex-1 overflow-y-auto">
-            <SidebarNav />
-        </div>
-        <div className="border-t">
-          <UserProfile />
-        </div>
-    </div>
-  );
 
   return (
     <>
@@ -122,7 +146,7 @@ export function AppSidebar() {
         <SidebarContentLayout />
       </aside>
 
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-card px-4 md:hidden">
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-card px-4 md:hidden">
         <Link href="/" className="flex items-center gap-2 font-bold font-headline">
           <Home className="h-7 w-7 text-primary" />
           <span className="text-lg">AssetStream</span>
@@ -135,7 +159,7 @@ export function AppSidebar() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="flex flex-col p-0 w-64">
-             <SidebarContentLayout />
+            <SidebarContentLayout />
           </SheetContent>
         </Sheet>
       </header>
