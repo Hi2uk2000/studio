@@ -115,7 +115,7 @@ export function AppSidebar() {
             <span className="text-lg">AssetStream</span>
         </Link>
       </div>
-      <div className="flex flex-1 flex-col overflow-y-auto p-2">
+      <div className="flex-1 overflow-y-auto p-2">
         <SidebarNav />
       </div>
       <div className="border-t p-2">
