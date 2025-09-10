@@ -103,7 +103,7 @@ export function AppSidebar() {
         <div className="flex-1 overflow-y-auto">
             <SidebarNav />
         </div>
-        <div className="border-t">
+        <div className="mt-auto border-t">
           <UserProfile />
         </div>
     </div>
