@@ -226,4 +226,4 @@ A top-level collection to manage all service providers and contractors.
 | `address`          | `map`                 | The contractor's business address (optional).                | (See `address` sub-fields)       |
 | `averageRating`    | `number`              | An overall rating from 1 to 5, calculated from reviews.      | `4.8`                            |
 | `notes`            | `string`              | Private notes about the contractor.                          | `Always reliable, good for emergency call-outs.` |
-| `addedBy`          | `string`              | The UID of the user who first added this contractor.         | `aBCdEfgHiJkLmNoPqRsTuVwXyZ1`     
+| `addedBy`          | `string`              | The UID of the user who first added this contractor.         | `aBCdEfgHiJkLmNoPqRsTuVwXyZ1`     |
