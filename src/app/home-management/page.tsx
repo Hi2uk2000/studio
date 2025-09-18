@@ -1,4 +1,3 @@
-
 // src/app/home-management/page.tsx
 'use client';
 
@@ -12,12 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { enGB } from "date-fns/locale";
+import { QuickStatsDialog, type QuickStats } from "@/components/home-management/quick-stats-dialog";
+import { InsuranceDialog, type InsuranceDetails } from "@/components/home-management/insurance-dialog";
+import { OverpaymentCalculator } from "@/components/home-management/overpayment-calculator";
+
 
 const initialPropertyDetails = {
   address: "123 Oak Avenue, Manchester, M1 2AB",
@@ -32,7 +29,7 @@ const initialPropertyDetails = {
   term: 25, // years
 };
 
-const initialQuickStats = {
+const initialQuickStats: QuickStats = {
   mortgageBalance: 270000,
   interestRate: 3.5, // percentage
   renewalDate: new Date('2024-06-01'), // Set to a past date to show the renewal reminder
@@ -41,7 +38,7 @@ const initialQuickStats = {
   paymentDayOfMonth: 1,
 };
 
-const initialInsuranceDetails = {
+const initialInsuranceDetails: InsuranceDetails = {
     buildings: 300,
     contents: 150,
 };
@@ -56,8 +53,8 @@ const recentActivity = [
 export default function HomeManagementPage() {
   const router = useRouter();
   const [propertyDetails, setPropertyDetails] = useState(initialPropertyDetails);
-  const [quickStats, setQuickStats] = useState(initialQuickStats);
-  const [insuranceDetails, setInsuranceDetails] = useState(initialInsuranceDetails);
+  const [quickStats, setQuickStats] = useState<QuickStats>(initialQuickStats);
+  const [insuranceDetails, setInsuranceDetails] = useState<InsuranceDetails>(initialInsuranceDetails);
   const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false);
   const [isInsuranceDialogOpen, setIsInsuranceDialogOpen] = useState(false);
 
@@ -215,7 +212,7 @@ export default function HomeManagementPage() {
                     <Separator />
                     <div className="flex items-center justify-between">
                         <span className="flex items-center text-muted-foreground"><Calendar className="mr-2 h-5 w-5" /> Renewal Date</span>
-                        <span className="font-medium">{format(quickStats.renewalDate, 'd MMM yyyy', { locale: enGB })}</span>
+                        <span className="font-medium">{new Date(quickStats.renewalDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                     </div>
                     <Separator />
                     <div className="flex items-center justify-between">
@@ -294,229 +291,4 @@ export default function HomeManagementPage() {
       </Tabs>
     </div>
   );
-}
-
-function QuickStatsDialog({ stats, onSave, onClose }: {
-  stats: typeof initialQuickStats;
-  onSave: (data: typeof initialQuickStats) => void;
-  onClose: () => void;
-}) {
-    const [currentStats, setCurrentStats] = useState(stats);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSave(currentStats);
-    };
-
-    const handleDateChange = (date: Date | undefined) => {
-        if (date) {
-            setCurrentStats(prev => ({ ...prev, renewalDate: date }));
-        }
-    };
-
-    return (
-        <DialogContent className="sm:max-w-[480px]">
-            <DialogHeader>
-                <DialogTitle>Edit Quick Stats</DialogTitle>
-                <DialogDescription>
-                    Update your financial statistics here.
-                </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="mortgageBalance">Mortgage Balance (£)</Label>
-                        <Input id="mortgageBalance" type="number" value={currentStats.mortgageBalance} onChange={e => setCurrentStats(prev => ({ ...prev, mortgageBalance: Number(e.target.value) }))} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="interestRate">Interest Rate (%)</Label>
-                        <Input id="interestRate" type="number" step="0.01" value={currentStats.interestRate} onChange={e => setCurrentStats(prev => ({ ...prev, interestRate: Number(e.target.value) }))} />
-                    </div>
-                </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="regularMonthlyPayment">Regular Monthly Payment (£)</Label>
-                        <Input id="regularMonthlyPayment" type="number" value={currentStats.regularMonthlyPayment} onChange={e => setCurrentStats(prev => ({ ...prev, regularMonthlyPayment: Number(e.target.value) }))} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="paymentDayOfMonth">Payment Day of Month</Label>
-                        <Input id="paymentDayOfMonth" type="number" min="1" max="31" value={currentStats.paymentDayOfMonth} onChange={e => setCurrentStats(prev => ({ ...prev, paymentDayOfMonth: Number(e.target.value) }))} />
-                    </div>
-                </div>
-                <div className="space-y-2">
-                    <Label>Renewal Date</Label>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal")}>
-                                <Calendar className="mr-2 h-4 w-4" />
-                                {currentStats.renewalDate ? format(currentStats.renewalDate, "PPP", { locale: enGB }) : <span>Pick a date</span>}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={currentStats.renewalDate} onSelect={handleDateChange} locale={enGB} />
-                        </PopoverContent>
-                    </Popover>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="lastMonthsBills">Last Month's Bills (£)</Label>
-                    <Input id="lastMonthsBills" type="number" value={currentStats.lastMonthsBills} onChange={e => setCurrentStats(prev => ({ ...prev, lastMonthsBills: Number(e.target.value) }))} />
-                </div>
-                <DialogFooter>
-                    <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button type="submit">Save Changes</Button>
-                </DialogFooter>
-            </form>
-        </DialogContent>
-    );
-}
-
-function InsuranceDialog({ details, onSave, onClose }: {
-  details: typeof initialInsuranceDetails;
-  onSave: (data: typeof initialInsuranceDetails) => void;
-  onClose: () => void;
-}) {
-    const [currentDetails, setCurrentDetails] = useState(details);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSave(currentDetails);
-    };
-
-    return (
-        <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-                <DialogTitle>Edit Insurance Premiums</DialogTitle>
-                <DialogDescription>
-                    Update your annual insurance premium costs here.
-                </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4 py-4">
-                <div className="space-y-2">
-                    <Label htmlFor="buildings">Buildings Insurance (£/yr)</Label>
-                    <Input id="buildings" type="number" value={currentDetails.buildings} onChange={e => setCurrentDetails(prev => ({ ...prev, buildings: Number(e.target.value) }))} />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="contents">Contents Insurance (£/yr)</Label>
-                    <Input id="contents" type="number" value={currentDetails.contents} onChange={e => setCurrentDetails(prev => ({ ...prev, contents: Number(e.target.value) }))} />
-                </div>
-                {/* Add other insurance types here as needed */}
-                <DialogFooter>
-                    <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button type="submit">Save Changes</Button>
-                </DialogFooter>
-            </form>
-        </DialogContent>
-    );
-}
-
-function OverpaymentCalculator({ mortgageBalance, interestRate, purchaseDate, originalTerm, regularMonthlyPayment }: {
-    mortgageBalance: number;
-    interestRate: number;
-    purchaseDate: Date;
-    originalTerm: number;
-    regularMonthlyPayment: number;
-}) {
-    const [monthlyOverpayment, setMonthlyOverpayment] = useState(0);
-    const [lumpSumOverpayment, setLumpSumOverpayment] = useState(0);
-
-    const [result, setResult] = useState<{
-        newEndDate: string,
-        interestSaved: number,
-        overpaymentPercentage: number
-    } | null>(null);
-
-    const { remainingTermMonths } = useMemo(() => {
-        const monthsElapsed = (new Date().getFullYear() - purchaseDate.getFullYear()) * 12 + (new Date().getMonth() - purchaseDate.getMonth());
-        const remainingTerm = originalTerm * 12 - monthsElapsed;
-        
-        if (remainingTerm <= 0 || mortgageBalance <= 0) return { remainingTermMonths: 0 };
-        
-        return {
-            remainingTermMonths: remainingTerm
-        };
-    }, [mortgageBalance, purchaseDate, originalTerm]);
-
-    const calculate = () => {
-        if (regularMonthlyPayment <= 0) return;
-
-        const monthlyRate = interestRate / 100 / 12;
-        const balanceAfterLumpSum = mortgageBalance - lumpSumOverpayment;
-        const totalMonthlyPayment = regularMonthlyPayment + monthlyOverpayment;
-
-        // Calculate original term details
-        const originalTotalInterest = (regularMonthlyPayment * remainingTermMonths) - mortgageBalance;
-
-        // Calculate new term with overpayments
-        let newTermMonths = 0;
-        if (balanceAfterLumpSum > 0 && totalMonthlyPayment > balanceAfterLumpSum * monthlyRate) {
-           newTermMonths = -Math.log(1 - (balanceAfterLumpSum * monthlyRate) / totalMonthlyPayment) / Math.log(1 + monthlyRate);
-        }
-        
-        const newTotalInterest = (totalMonthlyPayment * newTermMonths) - balanceAfterLumpSum;
-        const interestSaved = originalTotalInterest - newTotalInterest;
-        
-        const newEndDate = new Date();
-        newEndDate.setMonth(newEndDate.getMonth() + Math.ceil(newTermMonths));
-
-        const totalOverpayment = lumpSumOverpayment + (monthlyOverpayment > 0 ? monthlyOverpayment * 12 : 0);
-        const overpaymentPercentage = (totalOverpayment / mortgageBalance) * 100;
-
-        setResult({
-            newEndDate: format(newEndDate, 'MMM yyyy'),
-            interestSaved: Math.round(interestSaved),
-            overpaymentPercentage: Math.round(overpaymentPercentage * 10) / 10
-        });
-    };
-    
-    return (
-        <div className="space-y-4">
-             {regularMonthlyPayment > 0 && (
-                <div className="p-3 bg-muted rounded-lg text-center">
-                    <p className="text-sm text-muted-foreground">Your Regular Monthly Payment</p>
-                    <p className="text-lg font-bold">£{regularMonthlyPayment.toFixed(2)}</p>
-                </div>
-            )}
-            <div className="space-y-2">
-                <Label htmlFor="monthly-overpayment">Additional Monthly Overpayment (£)</Label>
-                <Input
-                    id="monthly-overpayment"
-                    type="number"
-                    value={monthlyOverpayment}
-                    onChange={(e) => setMonthlyOverpayment(Number(e.target.value))}
-                    placeholder="e.g., 100"
-                />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="lump-sum-overpayment">One-off Overpayment (£)</Label>
-                <Input
-                    id="lump-sum-overpayment"
-                    type="number"
-                    value={lumpSumOverpayment}
-                    onChange={(e) => setLumpSumOverpayment(Number(e.target.value))}
-                    placeholder="e.g., 5000"
-                />
-            </div>
-            <Button onClick={calculate} className="w-full" disabled={(monthlyOverpayment <= 0 && lumpSumOverpayment <= 0) || regularMonthlyPayment <= 0}>Calculate</Button>
-
-            {result && (
-                <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
-                    <h4 className="font-semibold text-center">Calculation Result</h4>
-                     <div className="flex items-center justify-between">
-                        <span className="flex items-center text-muted-foreground text-sm"><Calendar className="mr-2 h-4 w-4" /> New Mortgage End Date</span>
-                        <span className="font-medium">{result.newEndDate}</span>
-                     </div>
-                      <Separator />
-                     <div className="flex items-center justify-between">
-                        <span className="flex items-center text-muted-foreground text-sm"><Banknote className="mr-2 h-4 w-4" /> Total Interest Saved</span>
-                        <span className="font-medium text-green-500">£{result.interestSaved.toLocaleString()}</span>
-                     </div>
-                     <Separator />
-                     <div className="flex items-center justify-between">
-                        <span className="flex items-center text-muted-foreground text-sm"><Percent className="mr-2 h-4 w-4" /> Annual Overpayment</span>
-                        <span className="font-medium">{result.overpaymentPercentage.toFixed(1)}%</span>
-                     </div>
-                </div>
-            )}
-        </div>
-    );
 }
