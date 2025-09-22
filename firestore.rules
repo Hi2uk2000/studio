@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      // Allow users to read their own profile
+      allow read: if request.auth.uid == userId;
+
+      // Allow users to create their own profile
+      allow create: if request.auth.uid == userId &&
+                      // Disallow self-referrals
+                      request.resource.data.referrerId != userId &&
+                      // If referrerId is provided, ensure the referrer exists
+                      (!('referrerId' in request.resource.data) || exists(/databases/$(database)/documents/users/$(request.resource.data.referrerId)));
+
+      // Allow users to update their own profile, but not the referrerId
+      allow update: if request.auth.uid == userId &&
+                       !('referrerId' in request.resource.data);
+    }
+  }
+}
