@@ -53,6 +53,13 @@ export default function ProfilePage() {
               <Input id="email" defaultValue={user.email ?? ''} disabled />
             </div>
 
+            {user.referrer && (
+              <div className="space-y-2">
+                <Label>Referred By</Label>
+                <Input defaultValue={user.referrer.username} disabled />
+              </div>
+            )}
+
             <Button>Update Profile</Button>
           </CardContent>
         </Card>
