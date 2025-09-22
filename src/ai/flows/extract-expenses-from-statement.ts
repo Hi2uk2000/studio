@@ -27,10 +27,19 @@ const ExtractExpensesOutputSchema = z.object({
 export type ExtractExpensesOutput = z.infer<typeof ExtractExpensesOutputSchema>;
 
 
+/**
+ * Extracts expenses from a raw text statement.
+ *
+ * @param {ExtractExpensesInput} input - The input containing the statement text.
+ * @returns {Promise<ExtractExpensesOutput>} A promise that resolves to the extracted expenses.
+ */
 export async function extractExpensesFromStatement(input: ExtractExpensesInput): Promise<ExtractExpensesOutput> {
   return extractExpensesFlow(input);
 }
 
+/**
+ * The prompt for the expense extraction flow.
+ */
 const extractExpensesPrompt = ai.definePrompt({
   name: 'extractExpensesPrompt',
   input: { schema: ExtractExpensesInputSchema },
@@ -50,6 +59,9 @@ const extractExpensesPrompt = ai.definePrompt({
 `,
 });
 
+/**
+ * The Genkit flow for extracting expenses from a statement.
+ */
 const extractExpensesFlow = ai.defineFlow(
   {
     name: 'extractExpensesFlow',

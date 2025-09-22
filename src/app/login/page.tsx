@@ -36,6 +36,11 @@ const formSchema = z.object({
 
 type LoginFormValues = z.infer<typeof formSchema>;
 
+/**
+ * The login page for the application.
+ *
+ * @returns {JSX.Element} The LoginPage component.
+ */
 export default function LoginPage() {
   const { user, signInWithGoogle, signInWithEmailAndPassword, loading } = useAuth();
   const router = useRouter();
@@ -53,6 +58,11 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
+  /**
+   * Handles the form submission for email/password login.
+   *
+   * @param {LoginFormValues} data - The form data.
+   */
   async function onSubmit(data: LoginFormValues) {
     setIsSubmitting(true);
     try {

@@ -12,6 +12,11 @@ import { useTheme } from 'next-themes'
 import { Moon, Sun, Bell, Shield, FileText } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 
+/**
+ * The user profile page.
+ *
+ * @returns {JSX.Element | null} The ProfilePage component, or null if the user is not authenticated.
+ */
 export default function ProfilePage() {
   const { user } = useAuth()
   const { theme, setTheme } = useTheme()

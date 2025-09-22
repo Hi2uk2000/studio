@@ -31,6 +31,11 @@ const formSchema = z.object({
 
 type RecurringBillFormValues = z.infer<typeof formSchema>;
 
+/**
+ * The page for adding a new recurring bill.
+ *
+ * @returns {JSX.Element} The AddRecurringBillPage component.
+ */
 export default function AddRecurringBillPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -44,6 +49,11 @@ export default function AddRecurringBillPage() {
     },
   });
 
+  /**
+   * Handles the form submission.
+   *
+   * @param {RecurringBillFormValues} data - The form data.
+   */
   async function onSubmit(data: RecurringBillFormValues) {
     setIsLoading(true);
     try {

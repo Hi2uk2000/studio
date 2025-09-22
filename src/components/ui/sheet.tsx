@@ -7,14 +7,29 @@ import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * A panel that slides in from the edge of the screen.
+ */
 const Sheet = SheetPrimitive.Root
 
+/**
+ * A button that opens the sheet's content.
+ */
 const SheetTrigger = SheetPrimitive.Trigger
 
+/**
+ * A button that closes the sheet.
+ */
 const SheetClose = SheetPrimitive.Close
 
+/**
+ * A portal that renders its children into a new container outside of the normal DOM hierarchy.
+ */
 const SheetPortal = SheetPrimitive.Portal
 
+/**
+ * A layer that covers the inert portion of the view when the sheet is open.
+ */
 const SheetOverlay = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
@@ -53,6 +68,9 @@ interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {}
 
+/**
+ * The content of the sheet.
+ */
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
@@ -74,6 +92,9 @@ const SheetContent = React.forwardRef<
 ))
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
+/**
+ * A container for the sheet's header.
+ */
 const SheetHeader = ({
   className,
   ...props
@@ -88,6 +109,9 @@ const SheetHeader = ({
 )
 SheetHeader.displayName = "SheetHeader"
 
+/**
+ * A container for the sheet's footer.
+ */
 const SheetFooter = ({
   className,
   ...props
@@ -102,6 +126,9 @@ const SheetFooter = ({
 )
 SheetFooter.displayName = "SheetFooter"
 
+/**
+ * The title of the sheet.
+ */
 const SheetTitle = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
@@ -114,6 +141,9 @@ const SheetTitle = React.forwardRef<
 ))
 SheetTitle.displayName = SheetPrimitive.Title.displayName
 
+/**
+ * The description of the sheet.
+ */
 const SheetDescription = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>

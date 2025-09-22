@@ -24,6 +24,12 @@ type ChartContextProps = {
 
 const ChartContext = React.createContext<ChartContextProps | null>(null)
 
+/**
+ * A hook to access the chart's context.
+ *
+ * @returns {ChartContextProps} The chart's context.
+ * @throws {Error} If used outside of a `<ChartContainer />` component.
+ */
 function useChart() {
   const context = React.useContext(ChartContext)
 
@@ -34,6 +40,9 @@ function useChart() {
   return context
 }
 
+/**
+ * A container for recharts components.
+ */
 const ChartContainer = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
@@ -67,6 +76,9 @@ const ChartContainer = React.forwardRef<
 })
 ChartContainer.displayName = "Chart"
 
+/**
+ * A component that generates a style tag to apply colors from the chart config.
+ */
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
     ([, config]) => config.theme || config.color
@@ -100,8 +112,14 @@ ${colorConfig
   )
 }
 
+/**
+ * The tooltip component for charts.
+ */
 const ChartTooltip = RechartsPrimitive.Tooltip
 
+/**
+ * The content of the chart tooltip.
+ */
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
@@ -256,8 +274,14 @@ const ChartTooltipContent = React.forwardRef<
 )
 ChartTooltipContent.displayName = "ChartTooltip"
 
+/**
+ * The legend component for charts.
+ */
 const ChartLegend = RechartsPrimitive.Legend
 
+/**
+ * The content of the chart legend.
+ */
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> &
@@ -316,7 +340,14 @@ const ChartLegendContent = React.forwardRef<
 )
 ChartLegendContent.displayName = "ChartLegend"
 
-// Helper to extract item config from a payload.
+/**
+ * Helper function to extract item configuration from a payload.
+ *
+ * @param {ChartConfig} config - The chart configuration.
+ * @param {unknown} payload - The payload from the chart.
+ * @param {string} key - The key to look for in the payload.
+ * @returns {object | undefined} The item configuration, or undefined if not found.
+ */
 function getPayloadConfigFromPayload(
   config: ChartConfig,
   payload: unknown,

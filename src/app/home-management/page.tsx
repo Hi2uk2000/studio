@@ -50,6 +50,11 @@ const recentActivity = [
 ];
 
 
+/**
+ * The main page for the Home Management section.
+ *
+ * @returns {JSX.Element} The HomeManagementPage component.
+ */
 export default function HomeManagementPage() {
   const router = useRouter();
   const [propertyDetails, setPropertyDetails] = useState(initialPropertyDetails);
@@ -64,6 +69,11 @@ export default function HomeManagementPage() {
     return Object.values(insuranceDetails).reduce((acc, val) => acc + (val || 0), 0);
   }, [insuranceDetails]);
 
+  /**
+   * Handles the tab change by navigating to the corresponding page.
+   *
+   * @param {string} value - The value of the selected tab.
+   */
   const handleTabChange = (value: string) => {
     router.push(`/${value}`);
   };

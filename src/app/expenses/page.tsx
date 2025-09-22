@@ -54,6 +54,11 @@ const initialRecurringBills: RecurringBill[] = [
     { id: '2', description: 'Home Insurance', amount: 450, category: 'Insurance', frequency: 'yearly', startDate: '2024-01-15', term: 1, termUnit: 'years' },
 ]
 
+/**
+ * The main page for managing expenses.
+ *
+ * @returns {JSX.Element} The ExpensesPage component.
+ */
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
   const [recurringBills, setRecurringBills] = useState<RecurringBill[]>(initialRecurringBills);
@@ -64,6 +69,11 @@ export default function ExpensesPage() {
   const [extractedExpenses, setExtractedExpenses] = useState<ExtractExpensesOutput['expenses']>([]);
   const [isReviewing, setIsReviewing] = useState(false);
 
+  /**
+   * Adds a new one-off expense to the list.
+   *
+   * @param {Omit<Expense, 'id' | 'date'>} expense - The expense to add.
+   */
   const addExpense = (expense: Omit<Expense, 'id' | 'date'>) => {
     const newExpense: Expense = {
       ...expense,
@@ -73,6 +83,9 @@ export default function ExpensesPage() {
     setExpenses([newExpense, ...expenses]);
   };
 
+  /**
+   * Handles the extraction of expenses from a statement.
+   */
   const handleExtractExpenses = async () => {
     if (!statementText.trim()) {
         toast({ variant: 'destructive', title: 'Error', description: 'Statement content cannot be empty.' });
@@ -99,6 +112,11 @@ export default function ExpensesPage() {
     }
   };
   
+  /**
+   * Finalises the import of expenses from a statement.
+   *
+   * @param {ExtractExpensesOutput['expenses']} selectedExpenses - The expenses selected for import.
+   */
   const handleFinaliseImport = (selectedExpenses: ExtractExpensesOutput['expenses']) => {
     const newExpenses = selectedExpenses.map((exp, index) => ({
       ...exp,
@@ -208,6 +226,16 @@ export default function ExpensesPage() {
 }
 
 
+/**
+ * A dialog for reviewing and importing expenses extracted from a statement.
+ *
+ * @param {object} props - The component's props.
+ * @param {boolean} props.isOpen - Whether the dialog is open.
+ * @param {() => void} props.onClose - A callback function to be called when the dialog is closed.
+ * @param {ExtractExpensesOutput['expenses']} props.expenses - The extracted expenses to review.
+ * @param {(selectedExpenses: ExtractExpensesOutput['expenses']) => void} props.onImport - A callback function to be called when the expenses are imported.
+ * @returns {JSX.Element} The ReviewExpensesDialog component.
+ */
 function ReviewExpensesDialog({ isOpen, onClose, expenses, onImport }: {
     isOpen: boolean;
     onClose: () => void;

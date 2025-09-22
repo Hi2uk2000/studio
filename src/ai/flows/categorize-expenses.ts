@@ -36,10 +36,19 @@ const CategoriseExpenseOutputSchema = z.object({
 });
 export type CategoriseExpenseOutput = z.infer<typeof CategoriseExpenseOutputSchema>;
 
+/**
+ * Categorises an expense based on its description.
+ *
+ * @param {CategoriseExpenseInput} input - The input containing the expense description.
+ * @returns {Promise<CategoriseExpenseOutput>} A promise that resolves to the categorisation result.
+ */
 export async function categoriseExpense(input: CategoriseExpenseInput): Promise<CategoriseExpenseOutput> {
   return categoriseExpenseFlow(input);
 }
 
+/**
+ * The prompt for the expense categorisation flow.
+ */
 const categoriseExpensePrompt = ai.definePrompt({
   name: 'categoriseExpensePrompt',
   input: {schema: CategoriseExpenseInputSchema},
@@ -56,6 +65,9 @@ const categoriseExpensePrompt = ai.definePrompt({
 `,
 });
 
+/**
+ * The Genkit flow for categorising expenses.
+ */
 const categoriseExpenseFlow = ai.defineFlow(
   {
     name: 'categoriseExpenseFlow',

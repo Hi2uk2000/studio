@@ -13,6 +13,14 @@ export const metadata: Metadata = {
   description: 'Your all-in-one home management solution.',
 };
 
+/**
+ * The root layout for the application.
+ * It wraps all pages with necessary providers and components.
+ *
+ * @param {object} props - The component's props.
+ * @param {React.ReactNode} props.children - The child components to render.
+ * @returns {JSX.Element} The RootLayout component.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

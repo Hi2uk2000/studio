@@ -11,6 +11,15 @@ import { ScrollArea } from "./scroll-area"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
+/**
+ * A calendar component for selecting dates.
+ *
+ * @param {object} props - The component's props.
+ * @param {string} [props.className] - The class name for the calendar.
+ * @param {object} [props.classNames] - The class names for the different parts of the calendar.
+ * @param {boolean} [props.showOutsideDays=true] - Whether to show days from the previous and next months.
+ * @returns {JSX.Element} The Calendar component.
+ */
 function Calendar({
   className,
   classNames,

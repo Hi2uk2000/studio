@@ -50,6 +50,11 @@ const formSchema = z.object({
 
 type HomeSetupFormValues = z.infer<typeof formSchema>;
 
+/**
+ * The home setup page for new users.
+ *
+ * @returns {JSX.Element} The HomeSetupPage component.
+ */
 export default function HomeSetupPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -59,6 +64,11 @@ export default function HomeSetupPage() {
     resolver: zodResolver(formSchema),
   });
 
+  /**
+   * Handles the form submission.
+   *
+   * @param {HomeSetupFormValues} data - The form data.
+   */
   function onSubmit(data: HomeSetupFormValues) {
     setIsLoading(true);
     console.log(data);

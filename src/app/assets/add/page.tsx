@@ -34,6 +34,11 @@ const formSchema = z.object({
 
 type AddAssetFormValues = z.infer<typeof formSchema>;
 
+/**
+ * The page for adding a new asset.
+ *
+ * @returns {JSX.Element} The AddAssetPage component.
+ */
 export default function AddAssetPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -78,6 +83,11 @@ export default function AddAssetPage() {
   }, [isScanning, toast]);
 
 
+  /**
+   * Handles the form submission.
+   *
+   * @param {AddAssetFormValues} data - The form data.
+   */
   function onSubmit(data: AddAssetFormValues) {
     setIsLoading(true);
     console.log(data);

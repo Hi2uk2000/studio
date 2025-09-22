@@ -85,6 +85,12 @@ const relatedDocuments = [
     { id: 3, assetId: 1, name: 'Installation-Certificate.pdf', type: 'Certificate' },
 ];
 
+/**
+ * Returns the badge variant based on the priority.
+ *
+ * @param {string} priority - The priority of the asset.
+ * @returns {"destructive" | "default" | "secondary"} The badge variant.
+ */
 const getPriorityVariant = (priority: string) => {
     switch (priority) {
         case 'High': return 'destructive';
@@ -94,6 +100,11 @@ const getPriorityVariant = (priority: string) => {
     }
 }
 
+/**
+ * The detail page for a specific asset.
+ *
+ * @returns {JSX.Element} The AssetDetailPage component.
+ */
 export default function AssetDetailPage() {
   const params = useParams();
   const assetId = params.id ? parseInt(params.id as string, 10) : null;

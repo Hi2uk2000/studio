@@ -13,7 +13,17 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
+/**
+ * The initialized Firebase app instance.
+ * It ensures that Firebase is initialized only once.
+ * @type {import('firebase/app').FirebaseApp}
+ */
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+/**
+ * The Firebase Auth instance.
+ * @type {import('firebase/auth').Auth}
+ */
 const auth = getAuth(app);
 
 export { app, auth };

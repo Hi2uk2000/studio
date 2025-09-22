@@ -28,14 +28,33 @@ interface QuickStatsDialogProps {
   onClose: () => void;
 }
 
+/**
+ * A dialog component for editing quick financial statistics.
+ *
+ * @param {object} props - The component's props.
+ * @param {QuickStats} props.stats - The current financial statistics.
+ * @param {(data: QuickStats) => void} props.onSave - A callback function to be called when the statistics are saved.
+ * @param {() => void} props.onClose - A callback function to be called when the dialog is closed.
+ * @returns {JSX.Element} The QuickStatsDialog component.
+ */
 export function QuickStatsDialog({ stats, onSave, onClose }: QuickStatsDialogProps) {
     const [currentStats, setCurrentStats] = useState(stats);
 
+    /**
+     * Handles the form submission.
+     *
+     * @param {React.FormEvent} e - The form event.
+     */
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSave(currentStats);
     };
 
+    /**
+     * Handles the change of the renewal date.
+     *
+     * @param {Date | undefined} date - The new renewal date.
+     */
     const handleDateChange = (date: Date | undefined) => {
         if (date) {
             setCurrentStats(prev => ({ ...prev, renewalDate: date }));

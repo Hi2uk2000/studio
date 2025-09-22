@@ -68,6 +68,11 @@ const initialPropertyDetails = {
   purchaseDate: new Date('2020-06-15'),
 };
 
+/**
+ * The page for editing the home profile.
+ *
+ * @returns {JSX.Element} The EditHomeManagementPage component.
+ */
 export default function EditHomeManagementPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -78,6 +83,11 @@ export default function EditHomeManagementPage() {
     defaultValues: initialPropertyDetails,
   });
 
+  /**
+   * Handles the form submission.
+   *
+   * @param {HomeSetupFormValues} data - The form data.
+   */
   function onSubmit(data: HomeSetupFormValues) {
     setIsLoading(true);
     console.log(data);

@@ -17,6 +17,18 @@ interface OverpaymentCalculatorProps {
     regularMonthlyPayment: number;
 }
 
+/**
+ * A calculator to determine the impact of mortgage overpayments.
+ * It calculates the new mortgage end date, total interest saved, and the annual overpayment percentage.
+ *
+ * @param {object} props - The component's props.
+ * @param {number} props.mortgageBalance - The current mortgage balance.
+ * @param {number} props.interestRate - The annual interest rate.
+ * @param {Date} props.purchaseDate - The original purchase date of the property.
+ * @param {number} props.originalTerm - The original mortgage term in years.
+ * @param {number} props.regularMonthlyPayment - The regular monthly mortgage payment.
+ * @returns {JSX.Element} The OverpaymentCalculator component.
+ */
 export function OverpaymentCalculator({ mortgageBalance, interestRate, purchaseDate, originalTerm, regularMonthlyPayment }: OverpaymentCalculatorProps) {
     const [monthlyOverpayment, setMonthlyOverpayment] = useState(0);
     const [lumpSumOverpayment, setLumpSumOverpayment] = useState(0);
@@ -38,6 +50,9 @@ export function OverpaymentCalculator({ mortgageBalance, interestRate, purchaseD
         };
     }, [mortgageBalance, purchaseDate, originalTerm]);
 
+    /**
+     * Calculates the effect of overpayments and updates the result state.
+     */
     const calculate = () => {
         if (regularMonthlyPayment <= 0) return;
 

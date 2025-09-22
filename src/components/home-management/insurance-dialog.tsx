@@ -18,9 +18,23 @@ interface InsuranceDialogProps {
   onClose: () => void;
 }
 
+/**
+ * A dialog component for editing insurance premium details.
+ *
+ * @param {object} props - The component's props.
+ * @param {InsuranceDetails} props.details - The current insurance details.
+ * @param {(data: InsuranceDetails) => void} props.onSave - A callback function to be called when the details are saved.
+ * @param {() => void} props.onClose - A callback function to be called when the dialog is closed.
+ * @returns {JSX.Element} The InsuranceDialog component.
+ */
 export function InsuranceDialog({ details, onSave, onClose }: InsuranceDialogProps) {
     const [currentDetails, setCurrentDetails] = useState(details);
 
+    /**
+     * Handles the form submission.
+     *
+     * @param {React.FormEvent} e - The form event.
+     */
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSave(currentDetails);

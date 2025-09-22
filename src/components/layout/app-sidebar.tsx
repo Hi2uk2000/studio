@@ -40,6 +40,11 @@ const navItems = [
   { href: '/documents', label: 'Documents', icon: FileText },
 ];
 
+/**
+ * Renders the main navigation for the application.
+ * Highlights the active link based on the current pathname.
+ * @returns {JSX.Element} The SidebarNav component.
+ */
 function SidebarNav() {
   const pathname = usePathname();
   const router = useRouter();
@@ -63,6 +68,11 @@ function SidebarNav() {
   );
 }
 
+/**
+ * Renders the user profile section in the sidebar.
+ * It displays the user's avatar, name, and email, and provides a dropdown menu with options for profile, help, and sign out.
+ * @returns {JSX.Element | null} The UserProfile component, or null if there is no authenticated user.
+ */
 function UserProfile() {
     const { user, signOut } = useAuth();
     const router = useRouter();
@@ -112,6 +122,10 @@ function UserProfile() {
 }
 
 
+/**
+ * The main layout for the sidebar content, including the logo, navigation, and user profile.
+ * @returns {JSX.Element} The SidebarContentLayout component.
+ */
 function SidebarContentLayout() {
   return (
     <div className="flex h-full flex-col gap-2">
@@ -132,6 +146,12 @@ function SidebarContentLayout() {
 }
 
 
+/**
+ * The main application sidebar component.
+ * It renders a fixed sidebar for desktop and a sheet-based menu for mobile.
+ * The sidebar is not displayed on certain routes like login and register.
+ * @returns {JSX.Element | null} The AppSidebar component, or null if the route does not require a sidebar.
+ */
 export function AppSidebar() {
   const pathname = usePathname();
 

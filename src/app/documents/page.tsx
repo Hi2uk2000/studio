@@ -56,6 +56,11 @@ interface Document {
   maintenanceId: number | null;
 }
 
+/**
+ * The main page for managing documents.
+ *
+ * @returns {JSX.Element} The DocumentsPage component.
+ */
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>(initialDocuments);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -63,6 +68,11 @@ export default function DocumentsPage() {
 
   const allGroups = [...new Set([...standardGroups, ...documents.map(d => d.type)])].sort();
 
+  /**
+   * Handles saving a new or edited document.
+   *
+   * @param {Omit<Document, 'id' | 'size' | 'uploaded'> & { newGroupName?: string }} formData - The form data for the document.
+   */
   const handleSave = (formData: Omit<Document, 'id' | 'size' | 'uploaded'> & { newGroupName?: string }) => {
     const { newGroupName, type, ...rest } = formData;
     const finalType = newGroupName || type;
@@ -85,6 +95,11 @@ export default function DocumentsPage() {
     setEditingDocument(null);
   };
   
+  /**
+   * Handles deleting a document.
+   *
+   * @param {number} id - The ID of the document to delete.
+   */
   const handleDelete = (id: number) => {
     setDocuments(documents.filter(doc => doc.id !== id));
   };
@@ -182,6 +197,17 @@ export default function DocumentsPage() {
   );
 }
 
+/**
+ * A dialog for adding or editing a document.
+ *
+ * @param {object} props - The component's props.
+ * @param {Document | null} props.document - The document to edit, or null to add a new document.
+ * @param {(data: any) => void} props.onSave - A callback function to be called when the document is saved.
+ * @param {() => void} props.onClose - A callback function to be called when the dialog is closed.
+ * @param {string[]} props.groups - The available document groups.
+ * @param {{id: number, title: string}[]} props.maintenanceTasks - The available maintenance tasks to link to.
+ * @returns {JSX.Element} The DocumentFormDialog component.
+ */
 function DocumentFormDialog({ document, onSave, onClose, groups, maintenanceTasks }: {
   document: Document | null;
   onSave: (data: any) => void;

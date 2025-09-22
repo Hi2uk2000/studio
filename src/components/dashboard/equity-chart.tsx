@@ -25,6 +25,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+/**
+ * Renders a chart that displays the user's equity growth over the last 12 months.
+ *
+ * @returns {JSX.Element} The EquityChart component.
+ */
 export default function EquityChart() {
   return (
     <ChartContainer config={chartConfig} className="h-[250px] w-full">

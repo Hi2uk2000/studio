@@ -5,10 +5,19 @@ import * as PopoverPrimitive from "@radix-ui/react-popover"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * A pop-up that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.
+ */
 const Popover = PopoverPrimitive.Root
 
+/**
+ * A button that opens the popover's content.
+ */
 const PopoverTrigger = PopoverPrimitive.Trigger
 
+/**
+ * The content of the popover.
+ */
 const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>

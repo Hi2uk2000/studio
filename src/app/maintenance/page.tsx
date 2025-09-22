@@ -43,6 +43,12 @@ const documents = [
   { id: 6, name: 'Gutter-cleaning-quote.pdf', type: 'Quote', size: '0.2 MB', uploaded: '2024-10-28', maintenanceId: 2 },
 ];
 
+/**
+ * Returns the status of a task based on its due date.
+ *
+ * @param {string} dueDate - The due date of the task.
+ * @returns {"Overdue" | "Due Soon" | "Upcoming"} The status of the task.
+ */
 const getStatus = (dueDate: string) => {
     const due = new Date(dueDate);
     const today = new Date();
@@ -55,6 +61,12 @@ const getStatus = (dueDate: string) => {
     return 'Upcoming';
 }
 
+/**
+ * Returns the badge variant based on the priority.
+ *
+ * @param {string} priority - The priority of the task.
+ * @returns {"destructive" | "default" | "secondary"} The badge variant.
+ */
 const getPriorityVariant = (priority: string) => {
     switch (priority) {
         case 'High': return 'destructive';
@@ -64,6 +76,12 @@ const getPriorityVariant = (priority: string) => {
     }
 }
 
+/**
+ * Returns the CSS class for the priority.
+ *
+ * @param {string} priority - The priority of the task.
+ * @returns {string} The CSS class.
+ */
 const getPriorityClass = (priority: string) => {
     switch (priority) {
         case 'High': return 'bg-destructive';
@@ -74,12 +92,22 @@ const getPriorityClass = (priority: string) => {
 }
 
 
+/**
+ * The main page for managing maintenance tasks.
+ *
+ * @returns {JSX.Element} The MaintenancePage component.
+ */
 export default function MaintenancePage() {
   const [tasks, setTasks] = useState(initialTasks);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<any | null>(null);
   const [view, setView] = useState<'planner' | 'calendar'>('planner');
 
+  /**
+   * Handles saving a new or edited task.
+   *
+   * @param {any} formData - The form data for the task.
+   */
   const handleSave = (formData: any) => {
     if (editingTask) {
         setTasks(tasks.map(task => task.id === editingTask.id ? { ...task, ...formData, status: getStatus(formData.dueDate) } : task));
@@ -95,6 +123,11 @@ export default function MaintenancePage() {
     setEditingTask(null);
   };
   
+  /**
+   * Handles deleting a task.
+   *
+   * @param {number} id - The ID of the task to delete.
+   */
   const handleDelete = (id: number) => {
     setTasks(tasks.filter(task => task.id !== id));
   };
@@ -228,6 +261,15 @@ export default function MaintenancePage() {
 }
 
 
+/**
+ * A dialog for adding or editing a maintenance task.
+ *
+ * @param {object} props - The component's props.
+ * @param {any | null} props.task - The task to edit, or null to add a new task.
+ * @param {(data: any) => void} props.onSave - A callback function to be called when the task is saved.
+ * @param {() => void} props.onClose - A callback function to be called when the dialog is closed.
+ * @returns {JSX.Element} The TaskFormDialog component.
+ */
 function TaskFormDialog({ task, onSave, onClose }: {
   task: any | null;
   onSave: (data: any) => void;
@@ -318,6 +360,13 @@ function TaskFormDialog({ task, onSave, onClose }: {
 }
 
 
+/**
+ * A component that displays a yearly timeline of maintenance tasks.
+ *
+ * @param {object} props - The component's props.
+ * @param {typeof initialTasks} props.tasks - The tasks to display on the timeline.
+ * @returns {JSX.Element} The YearlyTimeline component.
+ */
 function YearlyTimeline({ tasks }: { tasks: typeof initialTasks}) {
     const currentYear = new Date().getFullYear();
     const months = Array.from({ length: 12 }, (_, i) => new Date(currentYear, i));

@@ -9,6 +9,15 @@ const protectedRoutes = ['/', '/expenses', '/maintenance', '/documents', '/recom
 const publicRoutes = ['/login', '/register', '/register/home-setup'];
 
 
+/**
+ * A layout component that handles authentication logic.
+ * It is intended to protect routes and redirect users based on their authentication status.
+ * Currently, the logic is commented out.
+ *
+ * @param {object} props - The component's props.
+ * @param {React.ReactNode} props.children - The child components to render.
+ * @returns {JSX.Element} The AuthLayout component.
+ */
 export function AuthLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();

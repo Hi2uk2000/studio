@@ -8,6 +8,13 @@ interface ExpenseTableProps {
   expenses: Expense[];
 }
 
+/**
+ * Renders a table of expenses.
+ *
+ * @param {object} props - The component's props.
+ * @param {Expense[]} props.expenses - An array of expense objects to display.
+ * @returns {JSX.Element} The ExpenseTable component.
+ */
 export function ExpenseTable({ expenses }: ExpenseTableProps) {
   return (
     <div className="rounded-md border">

@@ -25,6 +25,14 @@ interface ExpenseFormProps {
   onAddExpense: (expense: { description: string; amount: number; category: string, includeInSpend: boolean }) => void;
 }
 
+/**
+ * A form for adding a new expense. It includes fields for description and amount,
+ * and uses an AI flow to automatically categorize the expense.
+ *
+ * @param {object} props - The component's props.
+ * @param {(expense: { description: string; amount: number; category: string, includeInSpend: boolean }) => void} props.onAddExpense - A callback function to be called when an expense is added.
+ * @returns {JSX.Element} The ExpenseForm component.
+ */
 export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -34,6 +42,11 @@ export function ExpenseForm({ onAddExpense }: ExpenseFormProps) {
     defaultValues: { description: '', amount: undefined, includeInSpend: true },
   });
 
+  /**
+   * Handles the form submission.
+   * It calls the AI flow to categorize the expense and then calls the onAddExpense callback.
+   * @param {ExpenseFormValues} data - The form data.
+   */
   async function onSubmit(data: ExpenseFormValues) {
     setIsLoading(true);
     try {

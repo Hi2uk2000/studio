@@ -54,9 +54,20 @@ const initialAssets = [
   },
 ];
 
+/**
+ * The main page for displaying a user's assets.
+ *
+ * @returns {JSX.Element} The AssetsPage component.
+ */
 export default function AssetsPage() {
   const [assets, setAssets] = useState(initialAssets);
   
+  /**
+   * Handles the deletion of an asset.
+   *
+   * @param {React.MouseEvent} e - The mouse event.
+   * @param {number} id - The ID of the asset to delete.
+   */
   const handleDelete = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
     e.preventDefault();

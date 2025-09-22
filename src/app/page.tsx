@@ -17,9 +17,19 @@ const upcomingReminders = [
 ];
 
 
+/**
+ * The home page of the application, which serves as a dashboard.
+ *
+ * @returns {JSX.Element} The Home component.
+ */
 export default function Home() {
   const { user } = useAuth();
 
+  /**
+   * Returns a greeting based on the time of day.
+   *
+   * @returns {string} The greeting message.
+   */
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';

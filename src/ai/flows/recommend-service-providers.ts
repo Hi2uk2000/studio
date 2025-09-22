@@ -36,12 +36,21 @@ export type RecommendServiceProvidersOutput = z.infer<
   typeof RecommendServiceProvidersOutputSchema
 >;
 
+/**
+ * Recommends service providers based on the user's location and maintenance needs.
+ *
+ * @param {RecommendServiceProvidersInput} input - The input containing the location and maintenance needs.
+ * @returns {Promise<RecommendServiceProvidersOutput>} A promise that resolves to the recommended service providers.
+ */
 export async function recommendServiceProviders(
   input: RecommendServiceProvidersInput
 ): Promise<RecommendServiceProvidersOutput> {
   return recommendServiceProvidersFlow(input);
 }
 
+/**
+ * The prompt for the service provider recommendation flow.
+ */
 const prompt = ai.definePrompt({
   name: 'recommendServiceProvidersPrompt',
   input: {schema: RecommendServiceProvidersInputSchema},
@@ -57,6 +66,9 @@ const prompt = ai.definePrompt({
   Make sure to only return a JSON array, do not include any other text.`,
 });
 
+/**
+ * The Genkit flow for recommending service providers.
+ */
 const recommendServiceProvidersFlow = ai.defineFlow(
   {
     name: 'recommendServiceProvidersFlow',

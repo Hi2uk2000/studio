@@ -10,7 +10,20 @@ interface RecurringBillsTableProps {
   bills: RecurringBill[];
 }
 
+/**
+ * Renders a table of recurring bills, including their next due date and status.
+ *
+ * @param {object} props - The component's props.
+ * @param {RecurringBill[]} props.bills - An array of recurring bill objects to display.
+ * @returns {JSX.Element} The RecurringBillsTable component.
+ */
 export default function RecurringBillsTable({ bills }: RecurringBillsTableProps) {
+  /**
+   * Calculates the next due date for a recurring bill.
+   *
+   * @param {RecurringBill} bill - The recurring bill.
+   * @returns {Date} The next due date.
+   */
   const getNextDueDate = (bill: RecurringBill): Date => {
       const startDate = new Date(bill.startDate);
       const now = new Date();
@@ -28,6 +41,12 @@ export default function RecurringBillsTable({ bills }: RecurringBillsTableProps)
       return nextDate;
   }
 
+  /**
+   * Checks if the term for a recurring bill has ended.
+   *
+   * @param {RecurringBill} bill - The recurring bill.
+   * @returns {boolean} `true` if the term has ended, otherwise `false`.
+   */
   const isTermEnded = (bill: RecurringBill): boolean => {
       const startDate = new Date(bill.startDate);
       const endDate = new Date(startDate);

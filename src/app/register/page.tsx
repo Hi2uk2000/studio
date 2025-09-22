@@ -28,6 +28,11 @@ const formSchema = z.object({
 
 type RegistrationFormValues = z.infer<typeof formSchema>;
 
+/**
+ * The registration page for the application.
+ *
+ * @returns {JSX.Element} The RegistrationPage component.
+ */
 export default function RegistrationPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -43,6 +48,11 @@ export default function RegistrationPage() {
     },
   });
 
+  /**
+   * Handles the form submission for user registration.
+   *
+   * @param {RegistrationFormValues} data - The form data.
+   */
   async function onSubmit(data: RegistrationFormValues) {
     setIsLoading(true);
     try {

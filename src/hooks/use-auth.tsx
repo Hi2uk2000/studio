@@ -33,6 +33,15 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Provides an authentication context to its children.
+ * It manages the user's authentication state, including the current user and loading status.
+ * It also provides functions for signing in, signing up, and signing out.
+ *
+ * @param {object} props - The component's props.
+ * @param {ReactNode} props.children - The child components to render.
+ * @returns {JSX.Element} The AuthProvider component.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,6 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  /**
+   * Signs in the user with Google.
+   * @returns {Promise<void>}
+   */
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -55,6 +68,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /**
+   * Signs in the user with email and password.
+   * @param {string} email - The user's email.
+   * @param {string} password - The user's password.
+   * @returns {Promise<void>}
+   */
   const signInWithEmailAndPassword = async (email: string, password: string) => {
     try {
       await firebaseSignInWithEmailAndPassword(auth, email, password);
@@ -64,6 +83,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /**
+   * Signs up the user with email, password, and full name.
+   * @param {string} email - The user's email.
+   * @param {string} password - The user's password.
+   * @param {string} fullName - The user's full name.
+   * @returns {Promise<void>}
+   */
   const signUpWithEmailAndPassword = async (email: string, password: string, fullName: string) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -80,6 +106,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
 
+  /**
+   * Signs out the current user.
+   * @returns {Promise<void>}
+   */
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
@@ -95,6 +125,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * A custom hook to access the authentication context.
+ * It must be used within an AuthProvider.
+ * @returns {AuthContextType} The authentication context.
+ * @throws {Error} If used outside of an AuthProvider.
+ */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
