@@ -3,7 +3,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -30,6 +30,7 @@ type RegistrationFormValues = z.infer<typeof formSchema>;
 
 export default function RegistrationPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { signUpWithEmailAndPassword } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +47,8 @@ export default function RegistrationPage() {
   async function onSubmit(data: RegistrationFormValues) {
     setIsLoading(true);
     try {
-      await signUpWithEmailAndPassword(data.email, data.password, data.fullName);
+      const referrerId = searchParams.get('referrer_id');
+      await signUpWithEmailAndPassword(data.email, data.password, data.fullName, referrerId ?? undefined);
       
       toast({
         title: 'Account Created!',
