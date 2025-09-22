@@ -27,6 +27,7 @@ export interface User {
 }
 
 export interface Property {
+    id?: string;
     ownerIds: string[];
     address: {
         line1: string;
@@ -40,7 +41,7 @@ export interface Property {
     bedrooms: number;
     bathrooms: number;
     purchasePrice: number;
-    purchaseDate: string;
+    purchaseDate: Date;
     images?: {
         url: string;
         caption?: string;
